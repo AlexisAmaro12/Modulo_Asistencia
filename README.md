@@ -1,2 +1,2 @@
 # Modulo_Asistencia
-Repositorio para el modulo de asistencia del STC.
+Prototipos del LEDA modulo de asistencia.
