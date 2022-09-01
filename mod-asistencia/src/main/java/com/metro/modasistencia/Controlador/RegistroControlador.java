@@ -1,11 +1,16 @@
 package com.metro.modasistencia.Controlador;
 
 import com.metro.modasistencia.modelo.Registro;
-import com.metro.modasistencia.repositorio.RegistroRepositorio;
-import com.metro.modasistencia.repositorio.UsuarioRepositorio;
+import com.metro.modasistencia.modelo.Usuario;
+import com.metro.modasistencia.servicio.RegistroServicio;
+import com.metro.modasistencia.servicio.UsuarioServicio;
 import com.metro.modasistencia.utilerias.RegistroUtileria;
+import com.metro.modasistencia.utilerias.paginacion.PageRender;
 import com.metro.modasistencia.utilerias.reportes.RegistroExportarExcel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -31,15 +36,19 @@ import static com.metro.modasistencia.utilerias.RegistroUtileria.comprobarHora;
 public class RegistroControlador {
 
     @Autowired
-    private RegistroRepositorio registroRepositorio;
+    private UsuarioServicio usuarioServicio;
 
     @Autowired
-    private UsuarioRepositorio usuarioRepositorio;
+    private RegistroServicio registroServicio;
 
     @GetMapping("/registros")
-    public String listarRegistros(Model modelo) {
-        List<Registro> listaRegistros = registroRepositorio.findAll();
-        modelo.addAttribute("listaRegistros", listaRegistros);
+    public String listarRegistros(@RequestParam(name = "page", defaultValue = "0") int page, Model modelo) {
+        Pageable pageRequest = PageRequest.of(page, 7);
+        Page<Registro> registros = registroServicio.findAll(pageRequest);
+        PageRender<Registro> registroPageRender = new PageRender<>("/registros", registros);
+
+        modelo.addAttribute("listaRegistros", registros);
+        modelo.addAttribute("page", registroPageRender);
         return "/registro";
     }
 
@@ -52,15 +61,21 @@ public class RegistroControlador {
     }
 
     @PostMapping("/registros/nuevo")
-    public String guardarRegistro(@RequestParam(value = "usuario", defaultValue = "0") Integer exp, @Validated Registro registro, BindingResult bindingResult, RedirectAttributes redirect, Model modelo) {
+    public String guardarRegistro(@RequestParam(value = "usuario", defaultValue = "0") Integer  exp, @RequestParam(value = "password", defaultValue = "null") String pass, @Validated Registro registro, BindingResult bindingResult, RedirectAttributes redirect, Model modelo) {
+        Usuario usuarioExiste = usuarioServicio.findByExpedienteAndPassword(exp, pass);
+        if (usuarioExiste == null) {
+            modelo.addAttribute("msgError", "Expediente o contraseña incorrectos");
+            return "registro_formulario";
+        }
         if (bindingResult.hasErrors()) {
             modelo.addAttribute("registro", registro);
             return "registro_formulario";
         }
-        LocalTime horaEntrada = usuarioRepositorio.findById(exp).get().getHoraEntrada();
-        LocalTime horaSalida = usuarioRepositorio.findById(exp).get().getHoraSalida();
+
+        LocalTime horaEntrada = usuarioExiste.getHoraEntrada();
+        LocalTime horaSalida = usuarioExiste.getHoraSalida();
         LocalTime horaRegistro = LocalTime.now();
-        List<Registro> registrosExistentes = registroRepositorio.findByFechaAndUsuario_Expediente(LocalDate.now(), exp);
+        List<Registro> registrosExistentes = registroServicio.findByFechaAndExpediente(LocalDate.now(), exp);
         RegistroUtileria registroUtileria = comprobarHora(registrosExistentes, horaRegistro, horaEntrada, horaSalida);
         if(!registroUtileria.isExito()) {
             modelo.addAttribute("registro", registro);
@@ -70,14 +85,14 @@ public class RegistroControlador {
         }
 
         registro.setTipo(registroUtileria.getTipo());
-        registroRepositorio.save(registro);
+        registroServicio.save(registro);
         redirect.addFlashAttribute("msgExito", registroUtileria.getMensaje());
         return "redirect:/";
     }
 
     @GetMapping("/registros/editar/{id}")
     public String mostrarFormularioEditarRegistro(@PathVariable ("id") Integer id, Model modelo) {
-        Registro registro = registroRepositorio.findById(id).get();
+        Registro registro = registroServicio.findOne(id);
         modelo.addAttribute("registro", registro);
 
         return "registro_formulario";
@@ -85,7 +100,7 @@ public class RegistroControlador {
 
     @PostMapping("/registros/editar/{id}")
     public String actualizarRegistro(@PathVariable Integer id, @Validated Registro registro, BindingResult bindingResult, RedirectAttributes redirect, Model modelo) {
-        Registro registroBD = registroRepositorio.findById(id).get();
+        Registro registroBD = registroServicio.findOne(id);
         if (bindingResult.hasErrors()) {
             modelo.addAttribute("registro", registro);
             return "registro_formulario";
@@ -96,14 +111,14 @@ public class RegistroControlador {
         registroBD.setHora(registro.getHora());
         registroBD.setTipo(registro.getTipo());
 
-        registroRepositorio.save(registro);
+        registroServicio.save(registro);
         redirect.addFlashAttribute("msgExito", "El registro ha sido actualizado con exito");
         return "redirect:/registros";
     }
 
     @PostMapping("/registros/eliminar/{id}")
-    public String eliminarRegistro(@PathVariable Integer id, RedirectAttributes redirect, Model modelo) {
-        registroRepositorio.deleteById(id);
+    public String eliminarRegistro(@PathVariable Integer id, RedirectAttributes redirect) {
+        registroServicio.delete(id);
         redirect.addFlashAttribute("msgExito", "El registro ha sido eliminado correctamente");
 
         return "redirect:/registros";
@@ -121,7 +136,7 @@ public class RegistroControlador {
 
         response.setHeader(cabecera, valor);
 
-        List<Registro> registros = registroRepositorio.findAll();
+        List<Registro> registros = registroServicio.findAll();
 
         RegistroExportarExcel exporter = new RegistroExportarExcel(registros);
         exporter.exportar(response);

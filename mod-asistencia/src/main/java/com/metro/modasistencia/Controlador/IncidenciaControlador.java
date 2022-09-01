@@ -3,12 +3,15 @@ package com.metro.modasistencia.Controlador;
 import com.metro.modasistencia.modelo.Incidencia;
 import com.metro.modasistencia.modelo.Registro;
 import com.metro.modasistencia.modelo.Usuario;
-import com.metro.modasistencia.repositorio.IncidenciaRepositorio;
-import com.metro.modasistencia.repositorio.RegistroRepositorio;
-import com.metro.modasistencia.repositorio.UsuarioRepositorio;
+import com.metro.modasistencia.servicio.IncidenciaServicio;
+import com.metro.modasistencia.servicio.RegistroServicio;
+import com.metro.modasistencia.servicio.UsuarioServicio;
+import com.metro.modasistencia.utilerias.paginacion.PageRender;
 import com.metro.modasistencia.utilerias.reportes.IncidenciaExportarExcel;
-import com.metro.modasistencia.utilerias.reportes.RegistroExportarExcel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -16,6 +19,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletResponse;
@@ -29,16 +33,22 @@ import java.util.List;
 public class IncidenciaControlador {
 
     @Autowired
-    IncidenciaRepositorio incidenciaRepositorio;
+    private IncidenciaServicio incidenciaServicio;
 
     @Autowired
-    RegistroRepositorio registroRepositorio;
+    private RegistroServicio registroServicio;
+
+    @Autowired
+    private UsuarioServicio usuarioServicio;
 
     @GetMapping("/incidencias")
-    public String listaIncidencias(Model modelo) {
-        List<Incidencia> listaIncidencias = incidenciaRepositorio.findAll();
-        modelo.addAttribute("listaIncidencias", listaIncidencias);
+    public String listaIncidencias(@RequestParam(name = "page", defaultValue = "0") int page, Model modelo) {
+        Pageable pageRequest = PageRequest.of(page, 7);
+        Page<Incidencia> incidencias = incidenciaServicio.findAll(pageRequest);
+        PageRender<Incidencia> registroPageRender = new PageRender<>("/incidencias", incidencias);
 
+        modelo.addAttribute("listaIncidencias", incidencias);
+        modelo.addAttribute("page", registroPageRender);
         return "incidencia";
     }
 
@@ -51,21 +61,26 @@ public class IncidenciaControlador {
     }
 
     @PostMapping("/incidencias/nueva")
-    public String guardarIncidencia(@Validated Incidencia incidencia, BindingResult bindingResult, RedirectAttributes redirect, Model modelo) {
+    public String guardarIncidencia(@RequestParam(value = "usuario", defaultValue = "0") Integer  exp, @RequestParam(value = "password", defaultValue = "null") String pass, @Validated Incidencia incidencia, BindingResult bindingResult, RedirectAttributes redirect, Model modelo) {
+        Usuario usuarioExiste = usuarioServicio.findByExpedienteAndPassword(exp, pass);
+        if(usuarioExiste == null) {
+            modelo.addAttribute("msgError", "Expediente o contraseña incorrectos");
+            return "incidencia_formulario";
+        }
         if (bindingResult.hasErrors()) {
             modelo.addAttribute("incidencia", incidencia);
 
             return "incidencia_formulario";
         }
 
-        incidenciaRepositorio.save(incidencia);
+        incidenciaServicio.save(incidencia);
         redirect.addFlashAttribute("msgExito", "La incidencia se registro correctamente");
         return "redirect:/";
     }
 
     @GetMapping("/incidencias/editar/{id}")
     public String mostrarFormularioEditarIncidencia(@PathVariable Integer id, Model modelo) {
-        Incidencia incidencia = incidenciaRepositorio.findById(id).get();
+        Incidencia incidencia = incidenciaServicio.findOne(id);
         modelo.addAttribute("incidencia", incidencia);
 
         return "incidencia_formulario";
@@ -73,7 +88,7 @@ public class IncidenciaControlador {
 
     @PostMapping("/incidencias/editar/{id}")
     public String actualizarIncidencia(@PathVariable Integer id, @Validated Incidencia incidencia, BindingResult bindingResult, RedirectAttributes redirect, Model modelo) {
-        Incidencia incidenciaBD = incidenciaRepositorio.findById(id).get();
+        Incidencia incidenciaBD = incidenciaServicio.findOne(id);
         if (bindingResult.hasErrors()) {
             modelo.addAttribute("incidencia", incidencia);
 
@@ -87,22 +102,22 @@ public class IncidenciaControlador {
         incidenciaBD.setDetalles(incidencia.getDetalles());
         incidenciaBD.setTipo(incidencia.getTipo());
 
-        incidenciaRepositorio.save(incidenciaBD);
+        incidenciaServicio.save(incidenciaBD);
         redirect.addFlashAttribute("msgExito", "El registro de incidencia ha sido actualizado correctamente");
         return "redirect:/incidencias";
     }
 
     @PostMapping("/incidencias/eliminar/{id}")
-    public String eliminarIncidencia(@PathVariable Integer id, RedirectAttributes redirect, Model modelo) {
-        incidenciaRepositorio.deleteById(id);
+    public String eliminarIncidencia(@PathVariable Integer id, RedirectAttributes redirect) {
+        incidenciaServicio.delete(id);
         redirect.addFlashAttribute("msgExito", "El registro de incidencia fue eliminado correctamente");
 
         return "redirect:/incidencias";
     }
 
     @PostMapping("/incidencias/validar/{id}")
-    public String validarIncidencia(@PathVariable Integer id, RedirectAttributes redirect, Model modelo) {
-        Incidencia incidenciaValidado = incidenciaRepositorio.findById(id).get();
+    public String validarIncidencia(@PathVariable Integer id, RedirectAttributes redirect) {
+        Incidencia incidenciaValidado = incidenciaServicio.findOne(id);
         if (incidenciaValidado.getEstado().equals("Validado")) {
             redirect.addFlashAttribute("msgFallo", "El registro de incidencia ya ha sido validado");
 
@@ -112,12 +127,12 @@ public class IncidenciaControlador {
         Registro registroCreado = new Registro();
         registroCreado.setUsuario(incidenciaValidado.getUsuario());
         registroCreado.setTipo(incidenciaValidado.getTipo());
-        registroRepositorio.save(registroCreado);
+        registroServicio.save(registroCreado);
         registroCreado.setHora(incidenciaValidado.getHora());
         registroCreado.setFecha(incidenciaValidado.getFecha());
 
-        incidenciaRepositorio.save(incidenciaValidado);
-        registroRepositorio.save(registroCreado);
+        incidenciaServicio.save(incidenciaValidado);
+        registroServicio.save(registroCreado);
         redirect.addFlashAttribute("msgExito", "El registro de incidencia se ha validado correctamente");
 
         return "redirect:/incidencias";
@@ -135,7 +150,7 @@ public class IncidenciaControlador {
 
         response.setHeader(cabecera, valor);
 
-        List<Incidencia> incidencias = incidenciaRepositorio.findAll();
+        List<Incidencia> incidencias = incidenciaServicio.findAll();
 
         IncidenciaExportarExcel exporter = new IncidenciaExportarExcel(incidencias);
         exporter.exportar(response);

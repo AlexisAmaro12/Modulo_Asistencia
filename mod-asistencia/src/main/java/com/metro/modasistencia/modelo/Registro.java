@@ -25,7 +25,7 @@ public class Registro {
 
     @ManyToOne
     @JoinColumn(name = "usuario_exp")
-    @NotNull(message = "Debe ingresar el expediente")
+    @NotNull(message = "Debes ingresar un expediente valido")
     private Usuario usuario;
 
     public Integer getId() {

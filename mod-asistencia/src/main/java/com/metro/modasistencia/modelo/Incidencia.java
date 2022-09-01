@@ -35,7 +35,7 @@ public class Incidencia {
 
     @ManyToOne
     @JoinColumn(name = "usuario_exp")
-    @NotNull(message = "Debe ingresar el expediente")
+    @NotNull(message = "Debe ingresar un expediente valido")
     private Usuario usuario;
 
     public Integer getId() {

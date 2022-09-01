@@ -121,14 +121,14 @@ public class RegistroUtileria {
                     "despues de tu hora de entrada: " + horaEntrada;
 
             return new RegistroUtileria(valorExito, conMensaje);
-        } else if (canRegistros == 1 && horaRegistro.isBefore(horaSalida) && diferenciaMinutosSalida > 30) {
+        } else if (canRegistros == 1 && horaRegistro.isBefore(horaSalida) && diferenciaMinutosSalida > 10) {
             valorExito  = false;
             conMensaje = "Ya cuenta con un registro de entrada. No se puede realizar el registro de salida es " +
                     "demasiado pronto para registrarte, el registro de salida se debe realizar 10 minutos antes " +
                     "o 30 minutos despues de tu hora de salida: " + horaSalida;
 
             return new RegistroUtileria(valorExito, conMensaje);
-        } else if (canRegistros == 1 && horaRegistro.isAfter(horaSalida) && diferenciaMinutosSalida > 10) {
+        } else if (canRegistros == 1 && horaRegistro.isAfter(horaSalida) && diferenciaMinutosSalida > 30) {
             valorExito  = false;
             conMensaje = "Ya cuenta con un registro de entrada. No se puede realizar el registro de salida es " +
                     "demasiado tarde para registrarte, el registro de salida se debe realizar 10 minutos antes " +
