@@ -124,15 +124,32 @@ public class IncidenciaControlador {
             return "redirect:/incidencias";
         }
         incidenciaValidado.setEstado("Validado");
-        Registro registroCreado = new Registro();
-        registroCreado.setUsuario(incidenciaValidado.getUsuario());
-        registroCreado.setTipo(incidenciaValidado.getTipo());
-        registroServicio.save(registroCreado);
-        registroCreado.setHora(incidenciaValidado.getHora());
-        registroCreado.setFecha(incidenciaValidado.getFecha());
+        Registro registroExiste = registroServicio.findByFechaAndExpediente(incidenciaValidado.getFecha(), incidenciaValidado.getUsuario().getExpediente());
+        if (registroExiste == null) {
+            Registro registroCreado = new Registro();
+            registroCreado.setUsuario(incidenciaValidado.getUsuario());
+            if (incidenciaValidado.getTipo().equals("Entrada")) {
+                registroCreado.setHoraEntrada(incidenciaValidado.getHora());
+            }
+            if (incidenciaValidado.getTipo().equals("Salida")) {
+                registroCreado.setHoraSalida(incidenciaValidado.getHora());
+            }
+            registroServicio.save(registroCreado);
+            registroCreado.setFecha(incidenciaValidado.getFecha());
+            incidenciaServicio.save(incidenciaValidado);
+            registroServicio.save(registroCreado);
+            redirect.addFlashAttribute("msgExito", "El registro de incidencia se ha validado correctamente");
 
+            return "redirect:/incidencias";
+        }
+        if (incidenciaValidado.getTipo().equals("Entrada")) {
+            registroExiste.setHoraEntrada(incidenciaValidado.getHora());
+        }
+        if (incidenciaValidado.getTipo().equals("Salida")) {
+            registroExiste.setHoraSalida(incidenciaValidado.getHora());
+        }
+        registroServicio.save(registroExiste);
         incidenciaServicio.save(incidenciaValidado);
-        registroServicio.save(registroCreado);
         redirect.addFlashAttribute("msgExito", "El registro de incidencia se ha validado correctamente");
 
         return "redirect:/incidencias";

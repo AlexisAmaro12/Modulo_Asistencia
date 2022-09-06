@@ -44,9 +44,7 @@
                 </div>
                 <div class= "mb-3">
                     <label for="password">Contraseña : </label>
-                    <input id="password" type="password" placeholder="Digite la contraseña" th:field="*{password}"  class="form-control" th:errorclass="is-invalid">
-
-                    <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="invalid-feedback"></div>
+                    <input id="password" type="password" placeholder="Digite la contraseña" th:field="*{password}"  class="form-control" required>
                 </div>
                 <div class= "text-end">
                     <button class="btn btn-success">Guardar</button>

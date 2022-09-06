@@ -32,7 +32,7 @@ public class RegistroServicioImpl implements RegistroServicio{
     }
 
     @Override
-    public List<Registro> findByFechaAndExpediente(LocalDate fecha, Integer expediente) {
+    public Registro findByFechaAndExpediente(LocalDate fecha, Integer expediente) {
         return registroRepositorio.findByFechaAndUsuario_Expediente(fecha, expediente);
     }
 

@@ -15,7 +15,7 @@ public interface RegistroServicio {
 
     Registro findOne(Integer expediente);
 
-    List<Registro> findByFechaAndExpediente(LocalDate fecha, Integer expediente);
+    Registro findByFechaAndExpediente(LocalDate fecha, Integer expediente);
 
     Integer countByFechaBetween(LocalDate fechasInicio, LocalDate fechaFinal);
 

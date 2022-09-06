@@ -15,13 +15,13 @@ public class Registro {
     private Integer id;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
-    private LocalTime hora;
+    private LocalTime horaEntrada;
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
+    private LocalTime horaSalida;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate fecha;
-
-    @Column(length = 10)
-    private String tipo;
 
     @ManyToOne
     @JoinColumn(name = "usuario_exp")
@@ -36,12 +36,20 @@ public class Registro {
         this.id = id;
     }
 
-    public LocalTime getHora() {
-        return hora;
+    public LocalTime getHoraEntrada() {
+        return horaEntrada;
     }
 
-    public void setHora(LocalTime hora) {
-        this.hora = hora;
+    public void setHoraEntrada(LocalTime horaEntrada) {
+        this.horaEntrada = horaEntrada;
+    }
+
+    public LocalTime getHoraSalida() {
+        return horaSalida;
+    }
+
+    public void setHoraSalida(LocalTime horaSalida) {
+        this.horaSalida = horaSalida;
     }
 
     public LocalDate getFecha() {
@@ -52,13 +60,6 @@ public class Registro {
         this.fecha = fecha;
     }
 
-    public String getTipo() {
-        return tipo;
-    }
-
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
-    }
 
     public Usuario getUsuario() {
         return usuario;
@@ -70,15 +71,14 @@ public class Registro {
 
     @PrePersist
     public void asignarHoraFechaRegistro() {
-        hora = LocalTime.now();
         fecha = LocalDate.now();
     }
 
-    public Registro(Integer id, LocalTime hora, LocalDate fecha, String tipo, Usuario usuario) {
+    public Registro(Integer id, LocalTime horaEntrada, LocalTime horaSalida, LocalDate fecha, Usuario usuario) {
         this.id = id;
-        this.hora = hora;
+        this.horaEntrada = horaEntrada;
+        this.horaSalida = horaSalida;
         this.fecha = fecha;
-        this.tipo = tipo;
         this.usuario = usuario;
     }
 

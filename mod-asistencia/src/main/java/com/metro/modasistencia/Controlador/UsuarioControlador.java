@@ -19,9 +19,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Locale;
-
 
 @Controller
 public class UsuarioControlador {
@@ -45,14 +44,16 @@ public class UsuarioControlador {
     @GetMapping("/estadisticas")
     public String mostrarOpcionesGraficas(Model modelo) {
         Integer numeroUsuarios = usuarioServicio.countByEstado();
-        modelo.addAttribute("numeroUsuarios", numeroUsuarios);
-        LocalDate fechaInicio = LocalDate.of(2022,8,30);
-        LocalDate fechaFinal = LocalDate.of(2022,9,1);
+        LocalDate fechaInicio = LocalDate.now().minusWeeks(2);
+        LocalDate fechaFinal = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM");
         Long diasPasados = ChronoUnit.DAYS.between(fechaInicio, fechaFinal) + 1;
         Integer numeroAsistencias = registroServicio.countByFechaBetween(fechaInicio, fechaFinal);
-        Long asistenciasTotales = (numeroUsuarios.longValue() * diasPasados) * 2;
+        Long asistenciasTotales = (numeroUsuarios.longValue() * diasPasados);
         Long faltas = asistenciasTotales - numeroAsistencias.longValue();
-        modelo.addAttribute("asistenciasTotales", asistenciasTotales);
+        modelo.addAttribute("fechaInicio", fechaInicio.format(formatter));
+        modelo.addAttribute("fechaFinal", fechaFinal.format(formatter));
+        modelo.addAttribute("diasPasados", diasPasados);
         modelo.addAttribute("numeroAsistencias", numeroAsistencias);
         modelo.addAttribute("faltas", faltas);
         return "estadistica";
@@ -113,8 +114,11 @@ public class UsuarioControlador {
         usuarioDB.setNombre(usuario.getNombre());
         usuarioDB.setHoraEntrada(usuario.getHoraEntrada());
         usuarioDB.setHoraSalida(usuario.getHoraSalida());
-        usuarioDB.setPassword(usuario.getPassword());
         usuarioDB.setEstado(usuario.getEstado());
+
+        if (!usuario.getPassword().equals("")) {
+            usuarioDB.setPassword(usuario.getPassword());
+        }
 
         usuarioServicio.save(usuarioDB);
         redirect.addFlashAttribute("msgExito", "El usuario ha sido actualizado con exito");

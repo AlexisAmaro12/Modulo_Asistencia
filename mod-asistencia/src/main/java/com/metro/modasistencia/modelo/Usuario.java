@@ -31,7 +31,7 @@ public class Usuario {
     @NotNull(message = "Debe ingresar la hora de salida")
     private LocalTime horaSalida;
 
-    @NotBlank(message = "Debe ingresar la contraseña")
+    //@NotBlank(message = "Debe ingresar la contraseña")
     private String password;
 
     @Column(length = 10)

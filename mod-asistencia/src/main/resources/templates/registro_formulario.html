@@ -27,16 +27,16 @@
 
                 <div th:if="${registro.id != null}">
                     <div class="mb-3">
-                        <label for="hora">Hora del registro : </label>
-                        <input id="hora" type="time" th:field="*{hora}" class="form-control" required>
+                        <label for="horaEntrada">Hora de entrada : </label>
+                        <input id="horaEntrada" type="time" th:field="*{horaEntrada}" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="horaSalida">Hora de entrada : </label>
+                        <input id="horaSalida" type="time" th:field="*{horaSalida}" class="form-control" required>
                     </div>
                     <div class="mb-3">
                         <label for="fecha">Fecha del registro : </label>
                         <input id="fecha" type="date" th:field="*{fecha}" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="tipo">Registro de : </label>
-                        <input id="tipo" type="text" placeholder="Digite el tipo de registro" th:field="*{tipo}"  class="form-control" required>
                     </div>
                 </div>
                 <div th:if="${registro.id == null}" class="mb-3" >

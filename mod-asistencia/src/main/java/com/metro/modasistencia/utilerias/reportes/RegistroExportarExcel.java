@@ -49,11 +49,11 @@ public class RegistroExportarExcel {
         celda.setCellStyle(estilo);
 
         celda = fila.createCell(3);
-        celda.setCellValue("Hora");
+        celda.setCellValue("Hora de Entrada");
         celda.setCellStyle(estilo);
 
         celda = fila.createCell(4);
-        celda.setCellValue("Tipo");
+        celda.setCellValue("Hora de Salida");
         celda.setCellStyle(estilo);
     }
 
@@ -85,12 +85,20 @@ public class RegistroExportarExcel {
             celda.setCellStyle(estilo);
 
             celda = fila.createCell(3);
-            celda.setCellValue(registro.getHora().format(formatoHora));
+            if (registro.getHoraEntrada() == null){
+                celda.setBlank();
+            } else {
+                celda.setCellValue(registro.getHoraEntrada().format(formatoHora));
+            }
             hoja.autoSizeColumn(3);
             celda.setCellStyle(estilo);
 
             celda = fila.createCell(4);
-            celda.setCellValue(registro.getTipo());
+            if (registro.getHoraSalida() == null){
+                celda.setBlank();
+            } else {
+                celda.setCellValue(registro.getHoraSalida().format(formatoHora));
+            }
             hoja.autoSizeColumn(4);
             celda.setCellStyle(estilo);
         }

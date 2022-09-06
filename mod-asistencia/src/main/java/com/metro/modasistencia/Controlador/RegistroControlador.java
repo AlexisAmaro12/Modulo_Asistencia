@@ -72,19 +72,41 @@ public class RegistroControlador {
             return "registro_formulario";
         }
 
+        Registro registroExiste = registroServicio.findByFechaAndExpediente(LocalDate.now(), exp);
+        boolean entradaRegistrada;
+        boolean salidaRegistrada;
+        if(registroExiste != null) {
+            entradaRegistrada = registroExiste.getHoraEntrada() != null;
+            salidaRegistrada = registroExiste.getHoraSalida() != null;
+        } else {
+            entradaRegistrada = false;
+            salidaRegistrada = false;
+        }
+
         LocalTime horaEntrada = usuarioExiste.getHoraEntrada();
         LocalTime horaSalida = usuarioExiste.getHoraSalida();
         LocalTime horaRegistro = LocalTime.now();
-        List<Registro> registrosExistentes = registroServicio.findByFechaAndExpediente(LocalDate.now(), exp);
-        RegistroUtileria registroUtileria = comprobarHora(registrosExistentes, horaRegistro, horaEntrada, horaSalida);
+        RegistroUtileria registroUtileria = comprobarHora(entradaRegistrada, salidaRegistrada, horaRegistro, horaEntrada, horaSalida);
+
         if(!registroUtileria.isExito()) {
             modelo.addAttribute("registro", registro);
             modelo.addAttribute("msgError", registroUtileria.getMensaje());
 
             return "registro_formulario";
         }
-
-        registro.setTipo(registroUtileria.getTipo());
+        if(registroExiste != null) {
+            registroExiste.setHoraSalida(horaRegistro);
+            registroServicio.save(registroExiste);
+            redirect.addFlashAttribute("msgExito", registroUtileria.getMensaje());
+            return "redirect:/";
+        }
+        if(registroUtileria.getTipo().equals("Entrada")) {
+            registro.setHoraEntrada(horaRegistro);
+            registroServicio.save(registro);
+            redirect.addFlashAttribute("msgExito", registroUtileria.getMensaje());
+            return "redirect:/";
+        }
+        registro.setHoraSalida(horaRegistro);
         registroServicio.save(registro);
         redirect.addFlashAttribute("msgExito", registroUtileria.getMensaje());
         return "redirect:/";
@@ -108,8 +130,8 @@ public class RegistroControlador {
 
         registroBD.setUsuario(registro.getUsuario());
         registroBD.setFecha(registro.getFecha());
-        registroBD.setHora(registro.getHora());
-        registroBD.setTipo(registro.getTipo());
+        registroBD.setHoraEntrada(registro.getHoraEntrada());
+        registroBD.setHoraSalida(registro.getHoraSalida());
 
         registroServicio.save(registro);
         redirect.addFlashAttribute("msgExito", "El registro ha sido actualizado con exito");
