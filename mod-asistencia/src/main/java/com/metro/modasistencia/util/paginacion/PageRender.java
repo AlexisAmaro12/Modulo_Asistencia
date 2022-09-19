@@ -1,10 +1,11 @@
-package com.metro.modasistencia.utilerias.paginacion;
+package com.metro.modasistencia.util.paginacion;
 
 import org.springframework.data.domain.Page;
 
 import java.util.ArrayList;
 import java.util.List;
 
+//Clase encargada de la barra de navegacion para la paginacion
 public class PageRender<T> {
 
     private String url;

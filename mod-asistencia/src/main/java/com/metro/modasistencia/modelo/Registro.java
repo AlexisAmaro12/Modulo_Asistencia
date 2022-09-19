@@ -7,24 +7,28 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@Entity
+@Entity //Clase para indicar la entidad de Registro y sus metodos getter, setter
 public class Registro {
 
     @Id
+    @Column(name = "id_registro")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "reg_hora_entrada")
     @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
     private LocalTime horaEntrada;
 
+    @Column(name = "reg_hora_salida")
     @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
     private LocalTime horaSalida;
 
+    @Column(name = "reg_fecha")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate fecha;
 
     @ManyToOne
-    @JoinColumn(name = "usuario_exp")
+    @JoinColumn(name = "exp_usuario")
     @NotNull(message = "Debes ingresar un expediente valido")
     private Usuario usuario;
 

@@ -9,43 +9,43 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
+@Service //Implementacion de los metodos declarados en la interface UsuarioServicio
 public class UsuarioServicioImpl implements UsuarioServicio{
 
-    @Autowired
+    @Autowired //Inyeccion del repositorio de usuario
     private UsuarioRepositorio usuarioRepositorio;
 
-    @Override
+    @Override //Listar todos los usuarios
     public List<Usuario> findAll() {
         return usuarioRepositorio.findAll();
     }
 
-    @Override
+    @Override //Listar todos los usuarios usando paginacion
     public Page<Usuario> findAll(Pageable pageable) {
         return usuarioRepositorio.findAll(pageable);
     }
 
-    @Override
-    public Usuario findOne(Integer id) {
-        return usuarioRepositorio.findById(id).orElse(null);
+    @Override //Buscar un usuario por su expediente
+    public Usuario findOne(Integer expediente) {
+        return usuarioRepositorio.findById(expediente).orElse(null);
     }
 
-    @Override
-    public Usuario findByExpedienteAndPassword(Integer expediente, String password) {
-        return usuarioRepositorio.findByExpedienteAndPassword(expediente, password);
+    @Override //Obtener el password de un usuario por su expediente
+    public String getPass(Integer expediente) {
+        return usuarioRepositorio.getPass(expediente);
     }
 
-    @Override
+    @Override //Contar los usuarios con estado Activo
     public Integer countByEstado() {
         return usuarioRepositorio.countByEstadoEquals("Activo");
     }
 
-    @Override
+    @Override //Guardar un usuario
     public void save(Usuario usuario) {
         usuarioRepositorio.save(usuario);
     }
 
-    @Override
+    @Override //Eliminar un usuario
     public void delete(Integer id) {
         usuarioRepositorio.deleteById(id);
     }

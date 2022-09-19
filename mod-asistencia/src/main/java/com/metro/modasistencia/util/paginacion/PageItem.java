@@ -1,5 +1,6 @@
-package com.metro.modasistencia.utilerias.paginacion;
+package com.metro.modasistencia.util.paginacion;
 
+//Clase auxiliar para la implementacion de la paginacion
 public class PageItem {
 
     private int numero;

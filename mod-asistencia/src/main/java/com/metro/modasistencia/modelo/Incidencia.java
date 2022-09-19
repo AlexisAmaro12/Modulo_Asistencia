@@ -8,33 +8,38 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@Entity
+@Entity //Clase para indicar la entidad de Incidencia y sus metodos getter, setter
 public class Incidencia {
 
     @Id
+    @Column(name = "id_inci")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "inci_hora")
     @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
     @NotNull(message = "Debe ingresar la hora")
     private LocalTime hora;
 
+    @Column(name = "inci_fecha")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     @NotNull(message = "Debe ingresar la fecha")
     private LocalDate fecha;
 
-    @Column(length = 10)
+
+    @Column(name = "inci_tipo", length = 10)
     @NotBlank(message = "Debe ingresar el tipo")
     private String tipo;
 
-    @Column(length = 15)
+    @Column(name = "inci_estado", length = 15)
     private String estado;
 
+    @Column(name = "inci_detalles")
     @NotBlank(message = "Debe ingresar los detalles")
     private String detalles;
 
     @ManyToOne
-    @JoinColumn(name = "usuario_exp")
+    @JoinColumn(name = "exp_usuario")
     @NotNull(message = "Debe ingresar un expediente valido")
     private Usuario usuario;
 

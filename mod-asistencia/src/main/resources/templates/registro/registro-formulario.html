@@ -7,8 +7,9 @@
 </head>
 <body>
 
-    <header th:if="${registro.id == null}" th:replace="Layout/layout :: header"></header>
-
+    <div th:if="${registro.id == null}">
+        <header  th:replace="Layout/layout :: header"></header>
+    </div>
     <div th:if="${msgError != null}" class="alert alert-danger alert-dismissible">
         [[${msgError}]]
         <button type="button" class="btn btn-close" data-bs-dismiss="alert"></button>
@@ -21,21 +22,21 @@
                 <input type="hidden" th:field="*{id}" th:value="${registro.id}">
                 <div class="mb-3">
                     <label for="usuario">Expediente del Usuario : </label>
-                    <input id="usuario" type="text" placeholder="Digite el usuario" th:field="*{usuario}" class="form-control" th:errorclass="is-invalid" required>
+                    <input id="usuario" type="text" placeholder="Digite el expediente" th:field="*{usuario}" class="form-control" th:errorclass="is-invalid" required>
                     <div th:if="${#fields.hasErrors('usuario')}" th:errors="*{usuario}" class="invalid-feedback"></div>
                 </div>
 
                 <div th:if="${registro.id != null}">
                     <div class="mb-3">
-                        <label for="horaEntrada">Hora de entrada : </label>
+                        <label for="horaEntrada">Hora de Entrada : </label>
                         <input id="horaEntrada" type="time" th:field="*{horaEntrada}" class="form-control" required>
                     </div>
                     <div class="mb-3">
-                        <label for="horaSalida">Hora de entrada : </label>
+                        <label for="horaSalida">Hora de Salida : </label>
                         <input id="horaSalida" type="time" th:field="*{horaSalida}" class="form-control" required>
                     </div>
                     <div class="mb-3">
-                        <label for="fecha">Fecha del registro : </label>
+                        <label for="fecha">Fecha del Registro : </label>
                         <input id="fecha" type="date" th:field="*{fecha}" class="form-control" required>
                     </div>
                 </div>

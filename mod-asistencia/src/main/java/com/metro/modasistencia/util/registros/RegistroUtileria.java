@@ -1,14 +1,13 @@
-package com.metro.modasistencia.utilerias;
-
-import com.metro.modasistencia.modelo.Registro;
+package com.metro.modasistencia.util.registros;
 
 import java.time.LocalTime;
 
+//Clase para comprobar si el registro sera de entrada o salida, ademas de verificar que este dentro de las horas permitidas para el registro
 public class RegistroUtileria {
 
-    private boolean exito;
-    private String mensaje;
-    private String tipo;
+    private boolean exito; //Indica si el registro esta dentro de las horas permitidas y se puede realizar
+    private String mensaje; //Mensaje que sera enviado a la vista
+    private String tipo; //Indica si es de tipo de entrada o salida
 
 
     public RegistroUtileria() {
@@ -50,7 +49,7 @@ public class RegistroUtileria {
         this.tipo = tipo;
     }
 
-
+    //Metodo para revisar si es un registro de entrada o salida y comprobar que sea una hora permitida
     public static RegistroUtileria comprobarHora(boolean entradaRegistrada, boolean salidaRegistrada, LocalTime horaRegistro, LocalTime horaEntrada, LocalTime horaSalida) {
 
         boolean valorExito;
@@ -200,9 +199,15 @@ public class RegistroUtileria {
                     "de salida se debe realizar 10 minutos antes o 30 minutos despues de tu hora de salida: " + horaSalida;
 
             return new RegistroUtileria(valorExito, conMensaje);
+        }//No registro su entrada, pero ya registro su salida y es muy tarde para registrar su entrada
+        else if (!entradaRegistrada && salidaRegistrada && horaRegistro.isAfter(horaEntrada) && diferenciaMinutosSalida > 10) {
+            valorExito  = false;
+            conMensaje = "Tiene pendiente el registro de entrada de hoy, realizarlo en la seccion de incidencia. " +
+                    "Ya hizo su registro de salida hoy";
+
+            return new RegistroUtileria(valorExito, conMensaje);
         }
         else {
-            System.out.println("No puede registrarse");
             valorExito  = false;
             conMensaje = "Fallo al intentar registrarse";
 

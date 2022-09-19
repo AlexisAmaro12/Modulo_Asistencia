@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Lista de Registros Comunes</title>
@@ -11,9 +12,8 @@
             [[${msgExito}]]
             <button type="button" class="btn btn-close" data-bs-dismiss="alert"></button>
         </div>
-
         <h1>Lista de Registros Comunes</h1>
-        <h4 class="card-title">
+        <h4 sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR')" class="card-title">
             <a href="/registros/nuevo" class="btn btn-primary">Añadir Registro Comun</a>
             <a th:href="@{/registros/exportar}" class="btn btn-success">Descargar Registros Comunes</a>
         </h4>
@@ -22,23 +22,23 @@
             <table class="table table-hover">
                 <thead class="table-info">
                 <tr>
-                    <th>ID</th>
+                    <th>Nombre</th>
                     <th>Expediente</th>
                     <th>Hora de Entrada</th>
                     <th>Hora de Salida</th>
                     <th>Fecha</th>
-                    <th>Acciones</th>
+                    <th sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR')">Acciones</th>
                 </tr>
                 </thead>
                 <tbody>
                     <tr th:each="registro : ${listaRegistros}">
-                        <td th:text="${registro.id}"></td>
+                        <td th:text="${registro.usuario.nombre}"></td>
                         <td th:text="${registro.usuario.expediente}"></td>
                         <td th:text="${#temporals.format(registro.horaEntrada,'hh:mm a')}"></td>
                         <td th:text="${#temporals.format(registro.horaSalida,'hh:mm a')}"></td>
                         <td th:text="${#temporals.format(registro.fecha,'YYYY/MM/dd')}"></td>
                         <td>
-                            <div class="btn-group">
+                            <div sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR')" class="btn-group">
                             <a th:href="@{/registros/editar/{id} (id=${registro.id})}" class="btn btn-warning">Editar</a>
                             &nbsp;&nbsp;&nbsp;
                             <a href="#" onclick="eliminarRegistro(this)" class="btn btn-danger">Eliminar</a>
@@ -48,7 +48,7 @@
                     </tr>
                 </tbody>
             </table>
-            <nav th:replace="paginator-nav :: paginatorRegistros"></nav>
+            <nav th:replace="Layout/paginator-nav :: paginatorRegistros"></nav>
         </div>
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
             <a  href="/administrar" class="btn btn-outline-secondary">Volver</a>

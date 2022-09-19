@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Lista de Usuarios</title>
@@ -17,20 +18,21 @@
             <button type="button" class="btn btn-close" data-bs-dismiss="alert"></button>
         </div>
         <h1>Lista de Usuarios</h1>
-        <h4 class="card-title">
+        <h4 sec:authorize="hasRole('ROLE_ADMIN')" class="card-title">
             <a href="/usuarios/nuevo" class="btn btn-primary">Añadir Usuario</a>
         </h4>
 
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-hover" >
                 <thead class="table-info">
-                <tr>
-                    <th>Expediente</th>
-                    <th>Nombre</th>
-                    <th>Hora de entrada</th>
-                    <th>Hora de salida</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
+                <tr >
+                    <th scope="row">Expediente</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Hora de entrada</th>
+                    <th scope="col">Hora de salida</th>
+                    <th sec:authorize="hasRole('ROLE_ADMIN')" scope="col">Permisos</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Acciones</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -39,22 +41,23 @@
                         <td th:text="${usuario.nombre}"></td>
                         <td th:text="${#temporals.format(usuario.horaEntrada,'hh:mm a')}"></td>
                         <td th:text="${#temporals.format(usuario.horaSalida,'hh:mm a')}"></td>
+                        <td sec:authorize="hasRole('ROLE_ADMIN')" th:text="${usuario.roles}"></td>
                         <td th:text="${usuario.estado}"></td>
                         <td>
                             <div class="btn-group">
                                 <a th:href="@{/usuarios/editar/{expediente} (expediente=${usuario.expediente})}" class="btn btn-warning">Editar</a>
                                 &nbsp;&nbsp;
-                                <a  href="#" onclick="desactivarUsuario(this)" class="btn btn-dark"  >Desactivar</a>
+                                <a sec:authorize="hasRole('ROLE_ADMIN')"  href="#" onclick="desactivarUsuario(this)" class="btn btn-dark"  >Desactivar</a>
                                 <form th:action="@{/usuarios/desactivar/{id} (id=${usuario.expediente})}" method="post"></form>
                                 &nbsp;&nbsp;
-                                <a href="#" onclick="eliminarContacto(this)" class="btn btn-danger">Eliminar</a>
+                                <a sec:authorize="hasRole('ROLE_ADMIN')" href="#" onclick="eliminarContacto(this)" class="btn btn-danger">Eliminar</a>
                                 <form th:action="@{/usuarios/eliminar/{expediente} (expediente=${usuario.expediente})}" method="post"></form>
                             </div>
                         </td>
                     </tr>
                 </tbody>
             </table>
-            <nav th:replace="paginator-nav :: paginatorRegistros"></nav>
+            <nav th:replace="Layout/paginator-nav :: paginatorRegistros"></nav>
         </div>
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
             <a  href="/administrar" class="btn btn-outline-secondary">Volver</a>

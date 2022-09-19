@@ -9,33 +9,38 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
+@Service //Implementacion de los metodos declarados en la interface IncidenciaServicio
 public class IncidenciaServicioImpl implements IncidenciaServicio{
 
-    @Autowired
+    @Autowired  //Inyecccion del repositorio de incidencia
     private IncidenciaRepositorio incidenciaRepositorio;
 
-    @Override
+    @Override  //Listar todas las incidencias
     public List<Incidencia> findAll() {
         return incidenciaRepositorio.findAll();
     }
 
-    @Override
+    @Override  //Listar todas las incidencias agregando paginacion
     public Page<Incidencia> findAll(Pageable pageable) {
         return incidenciaRepositorio.findAll(pageable);
     }
 
-    @Override
+    @Override  //Listar todas las incidencias de un usuario determinado y con paginacion
+    public Page<Incidencia> findByExpediente(Integer expediente, Pageable pageable) {
+        return incidenciaRepositorio.findByUsuario_Expediente(expediente, pageable);
+    }
+
+    @Override  //Buscamos una incidencia en particular dependiendo el usuario
     public Incidencia findOne(Integer id) {
         return incidenciaRepositorio.findById(id).orElse(null);
     }
 
-    @Override
+    @Override  //Guardamos el registro de incidencia
     public void save(Incidencia incidencia) {
         incidenciaRepositorio.save(incidencia);
     }
 
-    @Override
+    @Override  //Eliminamos una incidencia
     public void delete(Integer id) {
         incidenciaRepositorio.deleteById(id);
     }

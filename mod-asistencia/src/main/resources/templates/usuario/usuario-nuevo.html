@@ -42,6 +42,13 @@
 
                     <div th:if="${#fields.hasErrors('horaSalida')}" th:errors="*{horaSalida}" class="invalid-feedback"></div>
                 </div>
+                <div class="mb-3">
+                    <label >Asignar roles : </label>
+                    <select th:field="${usuario.roles}" class="form-select form-select-sm" aria-label=".form-select-sm example">
+                        <option th:each="rol :${roles}" th:value="${rol.id}" th:text="${rol.nombre}">
+                        </option>
+                    </select>
+                </div>
                 <div class= "mb-3">
                     <label for="password">Contraseña : </label>
                     <input id="password" type="password" placeholder="Digite la contraseña" th:field="*{password}"  class="form-control" required>

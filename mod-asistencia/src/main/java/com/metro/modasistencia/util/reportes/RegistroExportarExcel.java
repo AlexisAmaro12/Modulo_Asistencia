@@ -1,6 +1,6 @@
-package com.metro.modasistencia.utilerias.reportes;
+package com.metro.modasistencia.util.reportes;
 
-import com.metro.modasistencia.modelo.Incidencia;
+import com.metro.modasistencia.modelo.Registro;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -14,19 +14,22 @@ import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-public class IncidenciaExportarExcel {
+//Clase encargada de realizar los reportes de excel de los Registros
+public class RegistroExportarExcel {
 
     private XSSFWorkbook libro;
     private XSSFSheet hoja;
 
-    private List<Incidencia> listaIncidencias;
+    private List<Registro> listaRegistros;
 
-    public IncidenciaExportarExcel(List<Incidencia> listaIncidencias) {
-        this.listaIncidencias = listaIncidencias;
+    //Metodo que sera usado en el controlador para descargar el reporte de excel
+    public RegistroExportarExcel(List<Registro> listaRegistros) {
+        this.listaRegistros = listaRegistros;
         libro = new XSSFWorkbook();
-        hoja = libro.createSheet("Registros de Incidencias");
+        hoja = libro.createSheet("Registros");
     }
 
+    //Metodo usado por la misma clase para realizar la cabecera de la tabla
     private void escribirCabeceraTabla() {
         Row fila = hoja.createRow(0);
 
@@ -49,22 +52,15 @@ public class IncidenciaExportarExcel {
         celda.setCellStyle(estilo);
 
         celda = fila.createCell(3);
-        celda.setCellValue("Hora");
+        celda.setCellValue("Hora de Entrada");
         celda.setCellStyle(estilo);
 
         celda = fila.createCell(4);
-        celda.setCellValue("Tipo");
-        celda.setCellStyle(estilo);
-
-        celda = fila.createCell(5);
-        celda.setCellValue("Estado");
-        celda.setCellStyle(estilo);
-
-        celda = fila.createCell(6);
-        celda.setCellValue("Detalles");
+        celda.setCellValue("Hora de Salida");
         celda.setCellStyle(estilo);
     }
 
+    //Metodo usado por la misma clase para escribir el contenido de la tabla
     private void escribirContenidoTabla() {
         DateTimeFormatter formatoHora = DateTimeFormatter.ofPattern("hh:mm a");
         int numeroFilas = 1;
@@ -74,46 +70,45 @@ public class IncidenciaExportarExcel {
         estilo.setFont(fuente);
 
 
-        for (Incidencia incidencia : listaIncidencias) {
+        for (Registro registro : listaRegistros) {
             Row fila = hoja.createRow(numeroFilas++);
 
             Cell celda = fila.createCell(0);
-            celda.setCellValue(incidencia.getUsuario().getExpediente());
+            celda.setCellValue(registro.getUsuario().getExpediente());
             hoja.autoSizeColumn(0);
             celda.setCellStyle(estilo);
 
             celda = fila.createCell(1);
-            celda.setCellValue(incidencia.getUsuario().getNombre());
+            celda.setCellValue(registro.getUsuario().getNombre());
             hoja.autoSizeColumn(1);
             celda.setCellStyle(estilo);
 
             celda = fila.createCell(2);
-            celda.setCellValue(incidencia.getFecha().toString());
+            celda.setCellValue(registro.getFecha().toString());
             hoja.autoSizeColumn(2);
             celda.setCellStyle(estilo);
 
             celda = fila.createCell(3);
-            celda.setCellValue(incidencia.getHora().format(formatoHora));
+            if (registro.getHoraEntrada() == null){
+                celda.setBlank();
+            } else {
+                celda.setCellValue(registro.getHoraEntrada().format(formatoHora));
+            }
             hoja.autoSizeColumn(3);
             celda.setCellStyle(estilo);
 
             celda = fila.createCell(4);
-            celda.setCellValue(incidencia.getTipo());
+            if (registro.getHoraSalida() == null){
+                celda.setBlank();
+            } else {
+                celda.setCellValue(registro.getHoraSalida().format(formatoHora));
+            }
             hoja.autoSizeColumn(4);
-            celda.setCellStyle(estilo);
-
-            celda = fila.createCell(5);
-            celda.setCellValue(incidencia.getEstado());
-            hoja.autoSizeColumn(5);
-            celda.setCellStyle(estilo);
-
-            celda = fila.createCell(6);
-            celda.setCellValue(incidencia.getDetalles());
-            hoja.autoSizeColumn(6);
             celda.setCellStyle(estilo);
         }
     }
 
+    //Metodo que sera usado por la misma clase para realizar la genereacion y descarga del reporte
     public void exportar(HttpServletResponse response) throws IOException {
         escribirCabeceraTabla();
         escribirContenidoTabla();

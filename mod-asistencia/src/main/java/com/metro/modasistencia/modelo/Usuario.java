@@ -5,36 +5,39 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity
+
+
+@Entity //Clase para indicar la entidad de usuario y sus metodos getter, setter
 public class Usuario {
 
     @Id
-    @Column(length = 10)
-    @NotNull(message = "Debe ingresar el expediente")
+    @Column(name = "exp_usuario",length = 10)
+    @NotNull(message = "Debe ingresar el expediente") //Agregamos la validacion y los mensajes de error con las anotaciones
     private Integer expediente;
 
-    @Column(length = 45, unique = true)
+    @Column(name = "usuario_nombre", length = 45)
     @NotBlank(message = "Debe ingresar el nombre")
     private String nombre;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
-    @Column(name = "hora_entrada")
+    @Column(name = "usuario_hora_entrada")
     @NotNull(message = "Debe ingresar la hora de entrada")
     private LocalTime horaEntrada;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
-    @Column(name = "hora_salida")
+    @Column(name = "usuario_hora_salida")
     @NotNull(message = "Debe ingresar la hora de salida")
     private LocalTime horaSalida;
 
-    //@NotBlank(message = "Debe ingresar la contraseña")
+    @Column(name = "usuario_password")
     private String password;
 
-    @Column(length = 10)
+    @Column(name = "usuario_estado", length = 10)
     private String estado;
 
     @OneToMany(mappedBy = "usuario", cascade= CascadeType.ALL)
@@ -42,6 +45,13 @@ public class Usuario {
 
     @OneToMany(mappedBy = "usuario", cascade= CascadeType.ALL)
     private Set<Incidencia> incidencias = new HashSet<>();
+
+    @Size(min=1)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "usuario_roles",
+            joinColumns=@JoinColumn(name="exp_usuario"),
+            inverseJoinColumns=@JoinColumn(name="id_rol"))
+    private Set<Rol> roles;
 
     public Integer getExpediente() {
         return expediente;
@@ -106,6 +116,15 @@ public class Usuario {
     public void setIncidencias(Set<Incidencia> incidencias) {
         this.incidencias = incidencias;
     }
+
+    public Set<Rol> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Rol> roles) {
+        this.roles = roles;
+    }
+
 
     @PrePersist
     public void asignarEstado() {
