@@ -88,17 +88,17 @@ public class RegistroControlador {
     //PEticion POST para guardar un registro nuevo
     @PostMapping("/registros/nuevo")
     public String guardarRegistro(@RequestParam(value = "usuario", defaultValue = "0") Integer  exp, @RequestParam(value = "password", defaultValue = "null") String pass, @Validated Registro registro, BindingResult bindingResult, RedirectAttributes redirect, Model modelo) {
+        //Se verifica que el formulario no tenga errores
+        if (bindingResult.hasErrors()) {
+            //Se le envian los mensajes de error a la vista
+            modelo.addAttribute("registro", registro);
+            return "registro/registro-formulario"; //Se dirige al HTML registro_formulario
+        }
         String usuarioExiste = usuarioServicio.getPass(exp);//Se obtiene el password del usuario por su expediente
         //Se verifica que el usuario exista ademas de que su contraseña sea la correcta
         if (usuarioExiste == null || !bCryptPasswordEncoder.matches(pass, usuarioExiste)) {
             //Se envia un mensaje de error a la vista
             modelo.addAttribute("msgError", "Expediente o contraseña incorrectos");
-            return "registro/registro-formulario"; //Se dirige al HTML registro_formulario
-        }
-        //Se verifica que el formulario no tenga errores
-        if (bindingResult.hasErrors()) {
-            //Se le envian los mensajes de error a la vista
-            modelo.addAttribute("registro", registro);
             return "registro/registro-formulario"; //Se dirige al HTML registro_formulario
         }
         Usuario usuarioExistente = usuarioServicio.findOne(exp);

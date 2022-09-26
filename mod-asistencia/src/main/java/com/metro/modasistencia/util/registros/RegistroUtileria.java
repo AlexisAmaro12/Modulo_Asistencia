@@ -91,7 +91,7 @@ public class RegistroUtileria {
         else if (!entradaRegistrada && !salidaRegistrada && horaRegistro.equals(horaSalida)) {
             valorExito  = true;
             conMensaje = "Registro de salida realizado con exito, tiene pendiente el registro de entrada, debe de " +
-                    "registrarlo en la seccion de incidencias, su hora de entrada ya paso";
+                    "registrarlo en la seccion de incidencias";
             conTipo = "Salida";
 
             return new RegistroUtileria(valorExito, conMensaje, conTipo);
@@ -132,7 +132,7 @@ public class RegistroUtileria {
         else if (!entradaRegistrada && !salidaRegistrada && horaRegistro.isAfter(horaSalida) && diferenciaMinutosSalida <= 30) {
             valorExito  = true;
             conMensaje = "Registro de salida realizado con exito, tiene pendiente el registro de entrada, debe de " +
-                    "registrarlo en la seccion de incidencias, su hora de entrada ya paso";
+                    "registrarlo en la seccion de incidencias";
             conTipo = "Salida";
 
             return new RegistroUtileria(valorExito, conMensaje, conTipo);
@@ -141,7 +141,7 @@ public class RegistroUtileria {
         else if (!entradaRegistrada && !salidaRegistrada && horaRegistro.isBefore(horaSalida) && diferenciaMinutosSalida <= 10) {
             valorExito  = true;
             conMensaje = "Registro de salida realizado con exito, tiene pendiente el registro de entrada, debe de " +
-                    "registrarlo en la seccion de incidencias, su hora de entrada ya paso";
+                    "registrarlo en la seccion de incidencias";
             conTipo = "Salida";
 
             return new RegistroUtileria(valorExito, conMensaje, conTipo);
@@ -167,7 +167,7 @@ public class RegistroUtileria {
         //Ya registro su entrada y es muy pronto para registrar su salida
         else if (entradaRegistrada && !salidaRegistrada && horaRegistro.isBefore(horaSalida) && diferenciaMinutosSalida > 10) {
             valorExito  = false;
-            conMensaje = "Ya cuenta con un registro de entrada. No se puede realizar el registro de salida es " +
+            conMensaje = "No se puede realizar el registro de salida es " +
                     "demasiado pronto para registrarte, el registro de salida se debe realizar 10 minutos antes " +
                     "o 30 minutos despues de tu hora de salida: " + horaSalida;
 
@@ -176,7 +176,7 @@ public class RegistroUtileria {
         //Ya registro su entrada y es muy tarde para registrar su salida
         else if (entradaRegistrada && !salidaRegistrada && horaRegistro.isAfter(horaSalida) && diferenciaMinutosSalida > 30) {
             valorExito  = false;
-            conMensaje = "Ya cuenta con un registro de entrada. No se puede realizar el registro de salida es " +
+            conMensaje = "No se puede realizar el registro de salida es " +
                     "demasiado tarde para registrarte, el registro de salida se debe realizar 10 minutos antes " +
                     "o 30 minutos despues de tu hora de salida: " + horaSalida;
 
@@ -185,25 +185,25 @@ public class RegistroUtileria {
         //No registro su entrada y es muy pronto para registrar su salida
         else if (!entradaRegistrada && !salidaRegistrada && horaRegistro.isBefore(horaSalida) && diferenciaMinutosSalida > 10) {
             valorExito  = false;
-            conMensaje = "Tiene pendiente el registro de entrada de hoy, realizarlo en la seccion de incidencia. " +
-                    "No se puede realizar el registro de salida es demasiado pronto para registrarte, el registro " +
-                    "de salida se debe realizar 10 minutos antes o 30 minutos despues de tu hora de salida: " + horaSalida;
+            conMensaje = "No se puede realizar el registro de salida es demasiado pronto para registrarte, el registro " +
+                    "de salida se debe realizar 10 minutos antes o 30 minutos despues de tu hora de salida: " + horaSalida +
+                    ". Tiene pendiente el registro de entrada de hoy, realizarlo en la seccion de incidencia. ";
 
             return new RegistroUtileria(valorExito, conMensaje);
         }
         //No registro su entrada y es muy tarde para registrar su salida
         else if (!entradaRegistrada && !salidaRegistrada && horaRegistro.isAfter(horaSalida) && diferenciaMinutosSalida > 30) {
             valorExito  = false;
-            conMensaje = "Tiene pendiente el registro de entrada de hoy, realizarlo en la seccion de incidencia. " +
-                    "No se puede realizar el registro de salida es demasiado tarde para registrarte, el registro " +
-                    "de salida se debe realizar 10 minutos antes o 30 minutos despues de tu hora de salida: " + horaSalida;
+            conMensaje = "No se puede realizar el registro de salida es demasiado tarde para registrarte, el registro " +
+                    "de salida se debe realizar 10 minutos antes o 30 minutos despues de tu hora de salida: " + horaSalida +
+                    ". Tiene pendiente el registro de entrada de hoy, realizarlo en la seccion de incidencia. ";
 
             return new RegistroUtileria(valorExito, conMensaje);
         }//No registro su entrada, pero ya registro su salida y es muy tarde para registrar su entrada
         else if (!entradaRegistrada && salidaRegistrada && horaRegistro.isAfter(horaEntrada) && diferenciaMinutosSalida > 10) {
             valorExito  = false;
-            conMensaje = "Tiene pendiente el registro de entrada de hoy, realizarlo en la seccion de incidencia. " +
-                    "Ya hizo su registro de salida hoy";
+            conMensaje =  "Ya hizo su registro de salida hoy. " +
+                    "Tiene pendiente el registro de entrada de hoy, realizarlo en la seccion de incidencia." ;
 
             return new RegistroUtileria(valorExito, conMensaje);
         }

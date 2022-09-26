@@ -4,6 +4,7 @@ import com.metro.modasistencia.modelo.Usuario;
 import com.metro.modasistencia.repositorio.RolRepositorio;
 import com.metro.modasistencia.servicio.RegistroServicio;
 import com.metro.modasistencia.servicio.UsuarioServicio;
+import com.metro.modasistencia.util.RangoDias;
 import com.metro.modasistencia.util.paginacion.PageRender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,7 +25,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 
 //Controlador para interactuar con el modelo Usuario
 @Controller
@@ -80,19 +81,17 @@ public class UsuarioControlador {
     //Peticion para ver las estadisticas
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR')")
     @GetMapping("/estadisticas")
-    public String mostrarOpcionesGraficas(Model modelo) {
-        Integer numeroUsuarios = usuarioServicio.countByEstado();
-        LocalDate fechaInicio = LocalDate.now().minusWeeks(2);
-        LocalDate fechaFinal = LocalDate.now();
+    public String mostrarEstadisticas(Model modelo) {
+        RangoDias rangoDias = new RangoDias().obtenerDiasDelPeriodo();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM");
-        Long diasPasados = ChronoUnit.DAYS.between(fechaInicio, fechaFinal) + 1;
-        Integer numeroAsistencias = registroServicio.countByFechaBetween(fechaInicio, fechaFinal);
-        Long asistenciasTotales = (numeroUsuarios.longValue() * diasPasados);
-        Long faltas = asistenciasTotales - numeroAsistencias.longValue();
-        modelo.addAttribute("fechaInicio", fechaInicio.format(formatter));
-        modelo.addAttribute("fechaFinal", fechaFinal.format(formatter));
-        modelo.addAttribute("diasPasados", diasPasados);
-        modelo.addAttribute("numeroAsistencias", numeroAsistencias);
+        int numeroUsuarios = usuarioServicio.countByEstado();
+        int diasHabiles = rangoDias.calcularDiasHabiles(rangoDias, new ArrayList<>());
+        int asistenciasRegistradas = registroServicio.countByFechaBetween(rangoDias.getFechaInicial(), rangoDias.getFechaFinal());
+        int asistenciasTotales = (numeroUsuarios * diasHabiles);
+        int faltas = asistenciasTotales - asistenciasRegistradas;
+        modelo.addAttribute("fechaInicio", rangoDias.getFechaInicial().format(formatter));
+        modelo.addAttribute("fechaFinal", rangoDias.getFechaFinal().format(formatter));
+        modelo.addAttribute("numeroAsistencias", asistenciasRegistradas);
         modelo.addAttribute("faltas", faltas);
         return "estadistica";
     }
@@ -203,17 +202,24 @@ public class UsuarioControlador {
         return "redirect:/usuarios"; //Dirige a la URL /usuarios
     }
 
+    //Peticion para activar un usuario y que este pueda hacer sus registros
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PostMapping("/usuarios/activar/{expediente}")
+    public String activarUsuario(@PathVariable Integer expediente, RedirectAttributes redirect) {
+        Usuario usuarioAlta = usuarioServicio.findOne(expediente); //Obtiene un usuario por su expediente
+        usuarioAlta.setEstado("Activo"); //Asigna el estado activo al usuario
+        usuarioServicio.save(usuarioAlta); //Guarda el usuario con estado activo
+        //Manda mensaje de exito a la vista
+        redirect.addFlashAttribute("msgExito", "El usuario se ha activado correctamente");
+
+        return "redirect:/usuarios"; //Dirige a la URL /usuarios
+    }
+
     //Peticion para desactivar un usuario y que este ya no pueda crear nuevos registros comunes o de incidencias
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/usuarios/desactivar/{expediente}")
     public String desactivarUsuario(@PathVariable Integer expediente, RedirectAttributes redirect) {
         Usuario usuarioBaja = usuarioServicio.findOne(expediente); //Obtiene un usuario por su expediente
-        //Revisa que el usuario no este desactivado ya
-        if (usuarioBaja.getEstado().equals("Inactivo")) {
-            //Manda mensaje de error a la vista
-            redirect.addFlashAttribute("msgFallo", "El usuario ya se encuentra desactivado");
-            return "redirect:/usuarios"; //Dirige a la url /usuarios
-        }
         usuarioBaja.setEstado("Inactivo"); //Asigna el estado inactivo al usuario
         usuarioServicio.save(usuarioBaja); //Guarda el usuario con estado inactivo
         //Manda mensaje de exito a la vista

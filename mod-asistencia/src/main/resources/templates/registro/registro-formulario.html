@@ -21,27 +21,27 @@
             <form action="" method="post" th:object="${registro}">
                 <input type="hidden" th:field="*{id}" th:value="${registro.id}">
                 <div class="mb-3">
-                    <label for="usuario">Expediente del Usuario : </label>
+                    <label for="usuario">Expediente del usuario : </label>
                     <input id="usuario" type="text" placeholder="Digite el expediente" th:field="*{usuario}" class="form-control" th:errorclass="is-invalid" required>
                     <div th:if="${#fields.hasErrors('usuario')}" th:errors="*{usuario}" class="invalid-feedback"></div>
                 </div>
 
                 <div th:if="${registro.id != null}">
                     <div class="mb-3">
-                        <label for="horaEntrada">Hora de Entrada : </label>
+                        <label for="horaEntrada">Hora de entrada : </label>
                         <input id="horaEntrada" type="time" th:field="*{horaEntrada}" class="form-control" required>
                     </div>
                     <div class="mb-3">
-                        <label for="horaSalida">Hora de Salida : </label>
+                        <label for="horaSalida">Hora de salida : </label>
                         <input id="horaSalida" type="time" th:field="*{horaSalida}" class="form-control" required>
                     </div>
                     <div class="mb-3">
-                        <label for="fecha">Fecha del Registro : </label>
+                        <label for="fecha">Fecha del registro : </label>
                         <input id="fecha" type="date" th:field="*{fecha}" class="form-control" required>
                     </div>
                 </div>
                 <div th:if="${registro.id == null}" class="mb-3" >
-                    <label for="password">Password del Usuario : </label>
+                    <label for="password">Password del usuario : </label>
                     <input name="password" id="password" type="password" placeholder="Digite el password" class="form-control" required>
                 </div>
                 <div class="text-end">

@@ -47,8 +47,14 @@
                             <div class="btn-group">
                                 <a th:href="@{/usuarios/editar/{expediente} (expediente=${usuario.expediente})}" class="btn btn-warning">Editar</a>
                                 &nbsp;&nbsp;
+                                <div th:if="${usuario.estado} == Activo">
                                 <a sec:authorize="hasRole('ROLE_ADMIN')"  href="#" onclick="desactivarUsuario(this)" class="btn btn-dark"  >Desactivar</a>
                                 <form th:action="@{/usuarios/desactivar/{id} (id=${usuario.expediente})}" method="post"></form>
+                                </div>
+                                <div th:if="${usuario.estado} == Inactivo">
+                                    <a sec:authorize="hasRole('ROLE_ADMIN')"  href="#" onclick="activarUsuario(this)" class="btn btn-success"  >Activar</a>
+                                    <form th:action="@{/usuarios/activar/{id} (id=${usuario.expediente})}" method="post"></form>
+                                </div>
                                 &nbsp;&nbsp;
                                 <a sec:authorize="hasRole('ROLE_ADMIN')" href="#" onclick="eliminarContacto(this)" class="btn btn-danger">Eliminar</a>
                                 <form th:action="@{/usuarios/eliminar/{expediente} (expediente=${usuario.expediente})}" method="post"></form>
@@ -77,6 +83,15 @@
     <script>
         function desactivarUsuario(elemento) {
             var ok = confirm('¿Estas seguro de desactivar al usuario?');
+
+            if(ok) {
+                elemento.nextElementSibling.submit();
+            }
+        }
+    </script>
+    <script>
+        function activarUsuario(elemento) {
+            var ok = confirm('¿Estas seguro de activar al usuario?');
 
             if(ok) {
                 elemento.nextElementSibling.submit();

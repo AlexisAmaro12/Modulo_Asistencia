@@ -87,17 +87,18 @@ public class IncidenciaControlador {
     //Peticion POST para guardar una nueva incidencia
     @PostMapping("/incidencias/nueva")
     public String guardarIncidencia(@RequestParam(value = "usuario", defaultValue = "0") Integer  exp, @RequestParam(value = "password", defaultValue = "null") String pass, @Validated Incidencia incidencia, BindingResult bindingResult, RedirectAttributes redirect, Model modelo) {
-        String usuarioExiste = usuarioServicio.getPass(exp); //Se obtiene el password del usuario por el expediente ingresado
+        //Valida que no existan errores al llenar el formulario
+        if (bindingResult.hasErrors()) {
+            //Se mandan los errores de validacion a la vista
+            modelo.addAttribute("incidencia", incidencia);
+            return "incidencia/incidencia-formulario"; //Se regresa al formulario
+        }
 
+        String usuarioExiste = usuarioServicio.getPass(exp); //Se obtiene el password del usuario por el expediente ingresado
         //Se verifica que exista un usuario y que su contraseña sea correcta
         if(usuarioExiste == null || !bCryptPasswordEncoder.matches(pass, usuarioExiste)) {
             //Se manda un mensaje de error a la vista
             modelo.addAttribute("msgError", "Expediente o contraseña incorrectos");
-            return "incidencia/incidencia-formulario"; //Se regresa al formulario
-        }
-        if (bindingResult.hasErrors()) {
-            //Se mandan los errores de validacion a la vista
-            modelo.addAttribute("incidencia", incidencia);
             return "incidencia/incidencia-formulario"; //Se regresa al formulario
         }
 
