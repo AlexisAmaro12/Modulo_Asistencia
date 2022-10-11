@@ -46,7 +46,7 @@ public class Usuario {
     @OneToMany(mappedBy = "usuario", cascade= CascadeType.ALL)
     private Set<Incidencia> incidencias = new HashSet<>();
 
-    @Size(min=1)
+    @Size(min=1, message = "Debe asignar un rol")
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "usuario_roles",
             joinColumns=@JoinColumn(name="exp_usuario"),

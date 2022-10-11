@@ -1,5 +1,6 @@
 package com.metro.modasistencia.Controlador;
 
+import com.metro.modasistencia.modelo.Rol;
 import com.metro.modasistencia.modelo.Usuario;
 import com.metro.modasistencia.repositorio.RolRepositorio;
 import com.metro.modasistencia.servicio.RegistroServicio;
@@ -17,15 +18,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 
 //Controlador para interactuar con el modelo Usuario
 @Controller
@@ -43,6 +41,10 @@ public class UsuarioControlador {
     @Autowired //Inyeccion del encriptador de password
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    @ModelAttribute("roles") //Metodo para pasar un modelo a la vista siempre, sin tener que pasarlo a cada rato
+    public List<Rol> roles() {//Problema siempre hace la consulta de todos los roles hay que separar estadisticas y navegaciones
+        return rolRepositorio.findAll();
+    }
     //Peticion de pagina de inicio
     @GetMapping("/")
     public String mostrarPaginaInicio() {
@@ -115,7 +117,6 @@ public class UsuarioControlador {
     public String mostrarFormularioNuevoUsuario(Model modelo) {
         Usuario usuario = new Usuario(); //Crea un usuario el cual se enviara a la vista
         modelo.addAttribute("usuario", usuario);
-        modelo.addAttribute("roles", rolRepositorio.findAll()); //Manda la lista de roles a la vista
         return "usuario/usuario-nuevo"; //Dirige al HTML usuario_nuevo_formulario
     }
 
@@ -152,7 +153,6 @@ public class UsuarioControlador {
     public String mostrarFormularioEditarUsuario(@PathVariable Integer expediente, Model modelo) {
         Usuario usuario = usuarioServicio.findOne(expediente); //Recupera un usuario por su expeidnte
         modelo.addAttribute("usuario", usuario); //Pasa a la vista ese usuario
-        modelo.addAttribute("roles", rolRepositorio.findAll()); //Pasa a la vista la lista de roles
         return "usuario/usuario-editar"; //Dirige al HTML usuario_editar_formulario
     }
 

@@ -34,10 +34,11 @@
             </div>
             <div sec:authorize="hasRole('ROLE_ADMIN')" class="mb-3">
                 <label >Asignar roles : </label>
-                <select th:field="${usuario.roles}" class="form-select form-select-sm" aria-label=".form-select-sm example">
-                    <option th:each="rol :${roles}" th:value="${rol.id}" th:text="${rol.nombre}">
-                    </option>
-                </select>
+                <div th:each="role : ${roles}" class="form-check">
+                    <input class="form-check-input" type="checkbox" th:field="${usuario.roles}" th:value="${role.id}" th:errorclass="is-invalid">
+                    <label class="form-check-label" th:for="${#ids.prev('roles')}" th:text="${role.nombre}"></label>
+                </div>
+                <div th:if="${#fields.hasErrors('roles')}" th:errors="${usuario.roles}" style="color:red;"></div>
             </div>
             <div class= "mb-3">
                 <label for="password">Contraseña : </label>

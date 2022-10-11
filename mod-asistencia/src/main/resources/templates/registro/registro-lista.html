@@ -36,7 +36,7 @@
                         <td th:text="${registro.usuario.expediente}"></td>
                         <td th:text="${#temporals.format(registro.horaEntrada,'hh:mm a')}"></td>
                         <td th:text="${#temporals.format(registro.horaSalida,'hh:mm a')}"></td>
-                        <td th:text="${#temporals.format(registro.fecha,'YYYY/MM/dd')}"></td>
+                        <td th:text="${#temporals.format(registro.fecha,'dd/MM/YYYY')}"></td>
                         <td>
                             <div sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR')" class="btn-group">
                             <a th:href="@{/registros/editar/{id} (id=${registro.id})}" class="btn btn-warning">Editar</a>
