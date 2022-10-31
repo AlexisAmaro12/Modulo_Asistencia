@@ -16,6 +16,8 @@ public interface RegistroServicio {
     //Listar todos los registros comunes utilizando paginacion
     Page<Registro> findAll(Pageable pageable);
 
+    Page<Registro> findAllByOrderByFecha(Pageable pageable);
+
     //Listar todos los registros de un usuario con paginacion
     Page<Registro> findByExpediente(Integer expediente, Pageable pageable);
 

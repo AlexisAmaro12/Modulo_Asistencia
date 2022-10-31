@@ -32,7 +32,12 @@ public class UsuarioServicioImpl implements UsuarioServicio{
 
     @Override //Obtener el password de un usuario por su expediente
     public String getPass(Integer expediente) {
-        return usuarioRepositorio.getPass(expediente);
+        try {
+            String pass = usuarioRepositorio.getPass(expediente);
+            return pass;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override //Contar los usuarios con estado Activo

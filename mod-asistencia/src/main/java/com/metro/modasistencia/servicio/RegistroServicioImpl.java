@@ -5,6 +5,7 @@ import com.metro.modasistencia.repositorio.RegistroRepositorio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -16,19 +17,29 @@ public class RegistroServicioImpl implements RegistroServicio{
     @Autowired //Inyeccion del repositorio del modelo Registro
     private RegistroRepositorio registroRepositorio;
 
-    @Override //Listar todos los registros
+    @Override //Listar todos los registros ordenados por fecha y hora de entrada
     public List<Registro> findAll() {
-        return registroRepositorio.findAll();
+        Sort fechaSort = Sort.by("fecha");
+        Sort horaEntradaSort = Sort.by("horaEntrada");
+
+        Sort groupBySort = fechaSort.and(horaEntradaSort);
+        return registroRepositorio.findAll(groupBySort);
     }
+
 
     @Override //Listar todos los registros utilizando paginacion
     public Page<Registro> findAll(Pageable pageable) {
         return registroRepositorio.findAll(pageable);
     }
 
+    @Override
+    public Page<Registro> findAllByOrderByFecha(Pageable pageable) {
+        return registroRepositorio.findAllByOrderByFecha(pageable);
+    }
+
     @Override //Listar todos los registros de un usuario especifico usando paginacion
     public Page<Registro> findByExpediente(Integer expediente, Pageable pageable) {
-        return registroRepositorio.findByUsuario_Expediente(expediente,pageable);
+        return registroRepositorio.findByUsuario_ExpedienteOrderByFecha(expediente,pageable);
     }
 
     @Override //Buscar un registro especifico por su id

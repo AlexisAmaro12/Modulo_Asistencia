@@ -13,62 +13,58 @@
         [[${msgError}]]
         <button type="button" class="btn btn-close" data-bs-dismiss="alert"></button>
     </div>
-    <div class="row justify-content-center">
-        <div class="col-md6 col-lg-4">
-            <h3>[[${incidencia.id ne null ? 'Editar registro de incidencia' : 'Añadir nuevo registro de incidencia'}]]</h3>
-            <br>
-            <form action="" method="post" th:object="${incidencia}">
-                <input type="hidden" th:field="*{id}" th:value="${incidencia.id}">
-                <div class="mb-3">
-                    <label for="usuario">Expediente del usuario : </label>
-                    <input id="usuario" type="text" name="usuario" placeholder="Digite el expediente" th:field="*{usuario}" class="form-control" th:errorclass="is-invalid" required>
-                    <div th:if="${#fields.hasErrors('usuario')}" th:errors="*{usuario}" class="invalid-feedback"></div>
-                </div>
-                <div th:if="${incidencia.id == null}">
+    <div class="container">
+        <div class="row justify-content-center mb-4">
+            <h3 class="text-center mb-4 mt-4">[[${incidencia.id ne null ? 'Editar Registro de Incidencia' : 'Registrar una incidencia'}]]</h3>
+            <div class="col-md6 col-lg-5 bg-light">
+                <br>
+                <form action="" method="post" th:object="${incidencia}">
+                    <input type="hidden" th:field="*{id}" th:value="${incidencia.id}">
                     <div class="mb-3">
-                        <label for="password">Contraseña del usuario: </label>
-                        <input id="password" type="password" name="password" placeholder="Digite la contraseña"  class="form-control" required>
+                        <label for="usuario">Expediente del usuario : </label>
+                        <input id="usuario" type="text" name="usuario" placeholder="Digite el expediente" th:field="*{usuario}" class="form-control" th:errorclass="is-invalid" required>
+                        <div th:if="${#fields.hasErrors('usuario')}" th:errors="*{usuario}" class="invalid-feedback"></div>
                     </div>
-                </div>
-                <div class="mb-3">
-                    <label for="hora">Hora del registro : </label>
-                    <input id="hora" type="time" th:field="*{hora}" class="form-control" th:errorclass="is-invalid">
-                    <div th:if="${#fields.hasErrors('hora')}" th:errors="*{hora}" class="invalid-feedback"></div>
-                </div>
-                <div class="mb-3">
-                    <label for="fecha">Fecha del registro : </label>
-                    <input id="fecha" type="date" th:field="*{fecha}" class="form-control" th:errorclass="is-invalid">
-                    <div th:if="${#fields.hasErrors('fecha')}" th:errors="*{fecha}" class="invalid-feedback"></div>
-                </div>
-                <div class="mb-3">
-                    <label>Registro de : </label>
-                    <select th:field="*{tipo}" class="form-select form-select-sm" aria-label=".form-select-sm example" th:errorclass="is-invalid">
-                        <option value="Entrada">Entrada</option>
-                        <option value="Salida">Salida</option>
-                    </select>
-                    <div th:if="${#fields.hasErrors('tipo')}" th:errors="*{tipo}" class="invalid-feedback"></div>
-                </div>
-                <div class="mb-3">
-                    <label for="detalles">Razon de la incidencia : </label>
-                    <textarea class="form-control" id="detalles" placeholder="Digite la razon de la incidencia" th:field="*{detalles}" rows="3" th:errorclass="is-invalid"></textarea>
-                    <div th:if="${#fields.hasErrors('detalles')}" th:errors="*{detalles}" class="invalid-feedback"></div>
-                </div>
-                <div th:if="${incidencia.id != null}">
+                    <div th:if="${incidencia.id == null}">
+                        <div class="mb-3">
+                            <label for="password">Contraseña del usuario: </label>
+                            <input id="password" type="password" name="password" placeholder="Digite la contraseña"  class="form-control" required>
+                        </div>
+                    </div>
                     <div class="mb-3">
-                        <label>Estado del registro de incidencia: </label>
-                        <select th:field="*{estado}" class="form-select form-select-sm" aria-label=".form-select-sm example" required>
-                            <option value="Validado">Validado</option>
-                            <option value="No validado">No validado</option>
+                        <label for="hora">Hora del registro : </label>
+                        <input id="hora" type="time" th:field="*{hora}" class="form-control" th:errorclass="is-invalid">
+                        <div th:if="${#fields.hasErrors('hora')}" th:errors="*{hora}" class="invalid-feedback"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fecha">Fecha del registro : </label>
+                        <input id="fecha" type="date" th:field="*{fecha}" class="form-control" th:errorclass="is-invalid">
+                        <div th:if="${#fields.hasErrors('fecha')}" th:errors="*{fecha}" class="invalid-feedback"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label>Registro de : </label>
+                        <select th:field="*{tipo}" class="form-select form-select-sm" aria-label=".form-select-sm example" th:errorclass="is-invalid">
+                            <option value="Entrada">Entrada</option>
+                            <option value="Salida">Salida</option>
                         </select>
+                        <div th:if="${#fields.hasErrors('tipo')}" th:errors="*{tipo}" class="invalid-feedback"></div>
                     </div>
-                </div>
-                <div class="text-end">
-                    <button th:if="${incidencia.id != null}" class="btn btn-success">Actualizar</button>
-                    <button th:if="${incidencia.id == null}" class="btn btn-success">Registrar</button>
-                    &nbsp;&nbsp;
-                    <a th:if="${incidencia.id != null}" href="/incidencias" class="btn btn-outline-secondary">Cancelar</a>
-                </div>
-            </form>
+                    <div class="mb-3">
+                        <label for="detalles">Razon de la incidencia : </label>
+                        <textarea class="form-control" id="detalles" placeholder="Digite la razon de la incidencia" th:field="*{detalles}" rows="3" th:errorclass="is-invalid"></textarea>
+                        <div th:if="${#fields.hasErrors('detalles')}" th:errors="*{detalles}" class="invalid-feedback"></div>
+                    </div>
+                    <div th:if="${incidencia.id != null}">
+                        <input type="hidden" th:field="*{estado}" th:value="${incidencia.estado}">
+                    </div>
+                    <div class="text-end">
+                        <button th:if="${incidencia.id != null}" class="btn btn-primary">Actualizar</button>
+                        <button th:if="${incidencia.id == null}" class="btn btn-primary">Registrar</button>
+                        &nbsp;&nbsp;
+                        <a th:if="${incidencia.id != null}" href="/incidencias" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
     <footer th:replace="Layout/layout :: footer"></footer>

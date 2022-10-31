@@ -18,13 +18,13 @@
             <button type="button" class="btn btn-close" data-bs-dismiss="alert"></button>
         </div>
 
-        <h1>Lista de Registros de Incidencias</h1>
-        <h4 c sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR')" lass="card-title">
-            <a href="/incidencias/nueva" class="btn btn-primary">Añadir Registro de Incidencia</a>
-            <a  th:href="@{/incidencias/exportar}" class="btn btn-success">Descargar Registros de Incidencias</a>
-        </h4>
-
-        <div class="table-responsive">
+        <div class="row justify-content-center mb-4">
+            <h1 class="text-center mb-4 mt-4">Lista de Registros de Incidencias</h1>
+            <h4 sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR')" class="card-title">
+                <a  th:href="@{/incidencias/exportar}" class="btn btn-success">Descargar Registros de Incidencias</a>
+            </h4>
+        </div>
+        <div class= "table-responsive">
             <table class="table table-hover">
                 <thead class="table-info">
                 <tr>
@@ -49,9 +49,11 @@
                         <td th:text="${incidencia.detalles}"></td>
                         <td>
                             <div sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR')" class="btn-group">
-                                <a  href="#" onclick="validarIncidencia(this)" class="btn btn-success"  >Validar</a>
+
+                                <a th:if="${incidencia.estado != 'Validado'}"  href="#" onclick="validarIncidencia(this)" class="btn btn-success"  >Validar</a>
                                 <form th:action="@{/incidencias/validar/{id} (id=${incidencia.id})}" method="post"></form>
                                 &nbsp;&nbsp;
+
                                 <a th:href="@{/incidencias/editar/{id} (id=${incidencia.id})}" class="btn btn-warning">Editar</a>
                                 &nbsp;&nbsp;
                                 <a href="#" onclick="eliminarIncidencia(this)"  class="btn btn-danger">Eliminar</a>

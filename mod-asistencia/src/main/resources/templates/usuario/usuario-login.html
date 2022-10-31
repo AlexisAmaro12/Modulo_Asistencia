@@ -6,35 +6,44 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 </head>
 
-<body>
+<body >
 <header th:replace="Layout/layout :: header"></header>
 <div class="container">
-    <div th:if="${msgExito != null}" class="alert alert-success alert-dismissible">
-        [[${msgExito}]]
-        <button type="button" class="btn btn-close" data-bs-dismiss="alert"></button>
+    <div class="d-flex" style="height: 75px;">
+        <div class="vr"></div>
     </div>
-
     <div class="modal-dialog text-center">
-        <div class="col-sm-8 main-section">
-            <div class="modal-content">
-                <form class="col-12" th:action="@{/login}" method="post">
-                    <div class="form-group" id="user-group">
-                        <input type="text" class="form-control" placeholder="Expediente del usuario" name="expediente"/>
+        <div class="col-sm">
+            <div class="modal-content bg-light">
+                <div class="mb-3 modal-header">
+                    <h5 class="modal-title">Inicio de Sesión</h5>
+                </div>
+                <form th:action="@{/login}" method="post">
+                    <div class="container">
+                        <div class="mb-3" id="user-group">
+                            <input type="text" class="form-control" placeholder="Expediente del usuario" name="expediente"/>
+                        </div>
+                        <div class="mb-4" id="contrasena-group">
+                            <input type="password" class="form-control" placeholder="Contraseña" name="password"/>
+                        </div>
                     </div>
-                    <div class="form-group" id="contrasena-group">
-                        <input type="password" class="form-control" placeholder="Contraseña" name="password"/>
+                    <div th:if="${param.error}" class="alert alert-danger" role="alert">
+                        El usuario o la contraseña son incorrectos.
                     </div>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i>  Ingresar </button>
+
+                    <div th:if="${param.logout}" class="alert alert-success" role="alert">
+                        Ha cerrado sesión con éxito.
+                    </div>
+                    <div th:if="${mensaje != null}" class="alert alert-danger" role="alert">
+                        [[${mensaje}]]
+                    </div>
+                    <div class="modal-footer">
+                        <div class="mb-4">
+                            <button type="submit" class="btn btn-primary"> Ingresar </button>
+                        </div>
+                    </div>
                 </form>
-                <div class="col-12 forgot">
-                    <a href="#">Olvide contraseña</a>
-                </div>
-                <div th:if="${param.error}" class="alert alert-danger" role="alert">
-                    El usuario o la contraseña son incorrectos.
-                </div>
-                <div th:if="${param.logout}" class="alert alert-success" role="alert">
-                    Ha cerrado sesion con exito.
-                </div>
+
             </div>
         </div>
     </div>

@@ -20,9 +20,19 @@ public class IncidenciaServicioImpl implements IncidenciaServicio{
         return incidenciaRepositorio.findAll();
     }
 
+    @Override
+    public List<Incidencia> findAllByOrderByFecha() {
+        return incidenciaRepositorio.findAllByOrderByFecha();
+    }
+
     @Override  //Listar todas las incidencias agregando paginacion
     public Page<Incidencia> findAll(Pageable pageable) {
         return incidenciaRepositorio.findAll(pageable);
+    }
+
+    @Override
+    public Page<Incidencia> findAllByOrderByFecha(Pageable pageable) {
+        return incidenciaRepositorio.findAllByOrderByEstado(pageable);
     }
 
     @Override  //Listar todas las incidencias de un usuario determinado y con paginacion

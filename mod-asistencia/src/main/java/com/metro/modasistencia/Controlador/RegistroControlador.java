@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -52,7 +53,7 @@ public class RegistroControlador {
     @GetMapping("/registros")
     public String listarRegistros(@RequestParam(name = "page", defaultValue = "0") int page, Model modelo) {
         //Pageable paginacion
-        Pageable pageRequest = PageRequest.of(page, 7);
+        Pageable pageRequest = PageRequest.of(page, 7, Sort.by("horaEntrada"));
         Page<Registro> registros;
 
         //Se recuperan los roles y el expediente del usuario que hace la peticion
@@ -65,7 +66,7 @@ public class RegistroControlador {
             registros = registroServicio.findByExpediente(Integer.parseInt(expediente), pageRequest);
         } else {
             //Se buscan todos los registros
-            registros = registroServicio.findAll(pageRequest);
+            registros = registroServicio.findAllByOrderByFecha(pageRequest);
         }
         PageRender<Registro> registroPageRender = new PageRender<>("/registros", registros);
         //Se envia la lista de los registros a la vista
@@ -85,20 +86,20 @@ public class RegistroControlador {
         return "registro/registro-formulario"; //Se dirige al HTML registro_formulario
     }
 
-    //PEticion POST para guardar un registro nuevo
+    //Peticion POST para guardar un registro nuevo
     @PostMapping("/registros/nuevo")
     public String guardarRegistro(@RequestParam(value = "usuario", defaultValue = "0") Integer  exp, @RequestParam(value = "password", defaultValue = "null") String pass, @Validated Registro registro, BindingResult bindingResult, RedirectAttributes redirect, Model modelo) {
-        //Se verifica que el formulario no tenga errores
-        if (bindingResult.hasErrors()) {
-            //Se le envian los mensajes de error a la vista
-            modelo.addAttribute("registro", registro);
-            return "registro/registro-formulario"; //Se dirige al HTML registro_formulario
-        }
         String usuarioExiste = usuarioServicio.getPass(exp);//Se obtiene el password del usuario por su expediente
         //Se verifica que el usuario exista ademas de que su contraseña sea la correcta
         if (usuarioExiste == null || !bCryptPasswordEncoder.matches(pass, usuarioExiste)) {
             //Se envia un mensaje de error a la vista
             modelo.addAttribute("msgError", "Expediente o contraseña incorrectos");
+            return "registro/registro-formulario"; //Se dirige al HTML registro_formulario
+        }
+        //Se verifica que el formulario no tenga errores
+        if (bindingResult.hasErrors()) {
+            //Se le envian los mensajes de error a la vista
+            modelo.addAttribute("registro", registro);
             return "registro/registro-formulario"; //Se dirige al HTML registro_formulario
         }
         Usuario usuarioExistente = usuarioServicio.findOne(exp);

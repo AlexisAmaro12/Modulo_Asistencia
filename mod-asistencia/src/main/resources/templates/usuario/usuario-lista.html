@@ -17,10 +17,13 @@
             [[${msgFallo}]]
             <button type="button" class="btn btn-close" data-bs-dismiss="alert"></button>
         </div>
-        <h1>Lista de Usuarios</h1>
-        <h4 sec:authorize="hasRole('ROLE_ADMIN')" class="card-title">
-            <a href="/usuarios/nuevo" class="btn btn-primary">Añadir Usuario</a>
-        </h4>
+
+        <div class="row justify-content-center mb-4">
+            <h1 class="text-center mb-4 mt-4">Lista de Usuarios</h1>
+            <h4 sec:authorize="hasRole('ROLE_ADMIN')" class="card-title">
+                <a href="/usuarios/nuevo" class="btn btn-primary">Añadir Usuario</a>
+            </h4>
+        </div>
 
         <div class="table-responsive">
             <table class="table table-hover" >

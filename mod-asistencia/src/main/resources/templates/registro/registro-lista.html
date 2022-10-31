@@ -12,11 +12,13 @@
             [[${msgExito}]]
             <button type="button" class="btn btn-close" data-bs-dismiss="alert"></button>
         </div>
-        <h1>Lista de Registros Comunes</h1>
-        <h4 sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR')" class="card-title">
-            <a href="/registros/nuevo" class="btn btn-primary">Añadir Registro Comun</a>
-            <a th:href="@{/registros/exportar}" class="btn btn-success">Descargar Registros Comunes</a>
-        </h4>
+
+        <div class="row justify-content-center mb-4">
+            <h1 class="text-center mb-4 mt-4">Lista de Registros Comunes</h1>
+            <h4 sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR')" class="card-title">
+                <a th:href="@{/registros/exportar}" class="btn btn-success">Descargar Registros Comunes</a>
+            </h4>
+        </div>
 
         <div class="table-responsive">
             <table class="table table-hover">

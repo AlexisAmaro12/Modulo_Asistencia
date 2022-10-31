@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -52,7 +53,7 @@ public class IncidenciaControlador {
     @GetMapping("/incidencias")
     public String listaIncidencias(@RequestParam(name = "page", defaultValue = "0") int page, Model modelo) {
         //Para la paginacion
-        Pageable pageRequest = PageRequest.of(page, 7);
+        Pageable pageRequest = PageRequest.of(page, 7, Sort.by("fecha"));
         Page<Incidencia> incidencias;
 
         //Se recuperan los roles y el expediente del usuario
@@ -65,7 +66,7 @@ public class IncidenciaControlador {
             incidencias = incidenciaServicio.findByExpediente(Integer.parseInt(expediente), pageRequest);
         } else {
             //Lista todas las incidencias
-            incidencias = incidenciaServicio.findAll(pageRequest);
+            incidencias = incidenciaServicio.findAllByOrderByFecha(pageRequest);
         }
         PageRender<Incidencia> registroPageRender = new PageRender<>("/incidencias", incidencias);
         //Se envia a la vista la lista de incidencias
@@ -87,18 +88,19 @@ public class IncidenciaControlador {
     //Peticion POST para guardar una nueva incidencia
     @PostMapping("/incidencias/nueva")
     public String guardarIncidencia(@RequestParam(value = "usuario", defaultValue = "0") Integer  exp, @RequestParam(value = "password", defaultValue = "null") String pass, @Validated Incidencia incidencia, BindingResult bindingResult, RedirectAttributes redirect, Model modelo) {
-        //Valida que no existan errores al llenar el formulario
-        if (bindingResult.hasErrors()) {
-            //Se mandan los errores de validacion a la vista
-            modelo.addAttribute("incidencia", incidencia);
-            return "incidencia/incidencia-formulario"; //Se regresa al formulario
-        }
 
         String usuarioExiste = usuarioServicio.getPass(exp); //Se obtiene el password del usuario por el expediente ingresado
         //Se verifica que exista un usuario y que su contraseña sea correcta
         if(usuarioExiste == null || !bCryptPasswordEncoder.matches(pass, usuarioExiste)) {
             //Se manda un mensaje de error a la vista
             modelo.addAttribute("msgError", "Expediente o contraseña incorrectos");
+            return "incidencia/incidencia-formulario"; //Se regresa al formulario
+        }
+
+        //Valida que no existan errores al llenar el formulario
+        if (bindingResult.hasErrors()) {
+            //Se mandan los errores de validacion a la vista
+            modelo.addAttribute("incidencia", incidencia);
             return "incidencia/incidencia-formulario"; //Se regresa al formulario
         }
 
@@ -114,7 +116,7 @@ public class IncidenciaControlador {
         incidenciaServicio.save(incidencia);
         //Se manda un mensaje de exito a la vista
         redirect.addFlashAttribute("msgExito", "La incidencia se registro correctamente");
-        return "redirect:/"; //Se nos redirige a la pagina de inicio
+        return "redirect:/registros/nuevo"; //Se nos redirige a la pagina de inicio
     }
 
     //Peticion para mostrar el formulario para editar una incidencia
@@ -239,7 +241,7 @@ public class IncidenciaControlador {
 
         response.setHeader(cabecera, valor);
 
-        List<Incidencia> incidencias = incidenciaServicio.findAll();
+        List<Incidencia> incidencias = incidenciaServicio.findAllByOrderByFecha();
 
         IncidenciaExportarExcel exporter = new IncidenciaExportarExcel(incidencias);
         exporter.exportar(response);

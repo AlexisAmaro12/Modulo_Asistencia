@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 
 import java.time.LocalDate;
+import java.util.List;
 
 
 //Repositorio para nuestras acciones CRUD del modelo Registro
@@ -19,5 +20,8 @@ public interface RegistroRepositorio extends JpaRepository<Registro, Integer> {
     Integer countAllByFechaBetween(LocalDate fechaInicio, LocalDate fechaTermino);
 
     //Metodo para utilizar la paginacion, dandole un objeto Pageable
-    Page<Registro> findByUsuario_Expediente(Integer expediente, Pageable pageable);
+    Page<Registro> findByUsuario_ExpedienteOrderByFecha(Integer expediente, Pageable pageable);
+
+    Page<Registro> findAllByOrderByFecha(Pageable pageable);
+
 }

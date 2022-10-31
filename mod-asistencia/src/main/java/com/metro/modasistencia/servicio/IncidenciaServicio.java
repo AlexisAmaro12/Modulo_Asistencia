@@ -11,9 +11,12 @@ public interface IncidenciaServicio {
 
     //Listar todas las incidencias
     List<Incidencia> findAll();
+    List<Incidencia> findAllByOrderByFecha();
 
     //Listar todas las incidencias utilizando un objeto Pageable para la paginacion
     Page<Incidencia> findAll(Pageable pageable);
+
+    Page<Incidencia> findAllByOrderByFecha(Pageable pageable);
 
     //Buscar todas las incidencias de un usuario determinado, ademas que agrega paginacion
     Page<Incidencia> findByExpediente(Integer expediente, Pageable pageable);

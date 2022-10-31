@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,6 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +30,7 @@ import java.util.List;
 //Controlador para interactuar con el modelo Usuario
 @Controller
 public class UsuarioControlador {
+
 
     @Autowired //Inyeccion de los servicios de los usuarios
     private UsuarioServicio usuarioServicio;
@@ -41,14 +44,10 @@ public class UsuarioControlador {
     @Autowired //Inyeccion del encriptador de password
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    @ModelAttribute("roles") //Metodo para pasar un modelo a la vista siempre, sin tener que pasarlo a cada rato
-    public List<Rol> roles() {//Problema siempre hace la consulta de todos los roles hay que separar estadisticas y navegaciones
-        return rolRepositorio.findAll();
-    }
-    //Peticion de pagina de inicio
+    //Dirige a la pagina de inicio
     @GetMapping("/")
-    public String mostrarPaginaInicio() {
-        return "index"; //Dirige al HTML index
+    public String paginaInicio() {
+        return "redirect:/registros/nuevo"; //Dirige a la pagina de inicio
     }
 
     //Peticion para iniciar sesion
@@ -59,10 +58,17 @@ public class UsuarioControlador {
 
     //Peticion para mostrar opciones
     @GetMapping("/administrar")
-    public String mostrarOpciones(Model modelo) {
+    public String mostrarOpciones(HttpServletRequest request, Model modelo) {
+        //Obtenemos el expediente del usuario que inicio sesion
+        Integer expediente = Integer.parseInt(SecurityContextHolder.getContext().getAuthentication().getName());
+        String estadoUsuario = usuarioServicio.findOne(expediente).getEstado();
+        if(estadoUsuario.equals("Inactivo")) {
+            modelo.addAttribute("mensaje", "Se encuentra inactivo");
+            new SecurityContextLogoutHandler().logout(request, null, null);
+            return "usuario/usuario-login";
+        }
         //Obtencion de los roles del usuario que inicio sesion
         String roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities().toString();
-
         //Comprueba que su rol sea de administrador
         if (roles.contains("ROLE_ADMIN")) {
             //Manda mensaje de bienvenida a la vista
@@ -117,6 +123,8 @@ public class UsuarioControlador {
     public String mostrarFormularioNuevoUsuario(Model modelo) {
         Usuario usuario = new Usuario(); //Crea un usuario el cual se enviara a la vista
         modelo.addAttribute("usuario", usuario);
+        List<Rol> roles = rolRepositorio.findAll();
+        modelo.addAttribute("roles", roles);
         return "usuario/usuario-nuevo"; //Dirige al HTML usuario_nuevo_formulario
     }
 
@@ -127,6 +135,8 @@ public class UsuarioControlador {
         //Verifica que no existan errores en el formulario
         if (bindingResult.hasErrors()) {
             modelo.addAttribute("usuario", usuario);
+            List<Rol> roles = rolRepositorio.findAll();
+            modelo.addAttribute("roles", roles);
             return "usuario/usuario-nuevo";
         }
         //Obtiene un usuario por su expediente
@@ -134,6 +144,9 @@ public class UsuarioControlador {
         //Comprueba que el usuario exista
         if (usuarioExiste != null) {
             //Manda mensaje de fallo a la vista
+            modelo.addAttribute("usuario", usuario);
+            List<Rol> roles = rolRepositorio.findAll();
+            modelo.addAttribute("roles", roles);
             modelo.addAttribute("msgFallo", "El usuario ya existe");
             return "usuario/usuario-nuevo"; //Dirige al HTML usuario_nuevo_formulario
         }
@@ -153,6 +166,8 @@ public class UsuarioControlador {
     public String mostrarFormularioEditarUsuario(@PathVariable Integer expediente, Model modelo) {
         Usuario usuario = usuarioServicio.findOne(expediente); //Recupera un usuario por su expeidnte
         modelo.addAttribute("usuario", usuario); //Pasa a la vista ese usuario
+        List<Rol> roles = rolRepositorio.findAll();
+        modelo.addAttribute("roles", roles);
         return "usuario/usuario-editar"; //Dirige al HTML usuario_editar_formulario
     }
 
@@ -163,6 +178,8 @@ public class UsuarioControlador {
         //Verifica que no existan errores en el formulario
         if (bindingResult.hasErrors()) {
             modelo.addAttribute("usuario", usuario);
+            List<Rol> roles = rolRepositorio.findAll();
+            modelo.addAttribute("roles", roles);
             return "usuario/usuario-editar"; //Dirige a el HTML usuario_editar_formulario
         }
 
