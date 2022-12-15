@@ -25,13 +25,17 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="#">Cambiar Contraseña</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/cambiar-password">Cambiar Contraseña</a></li>
                     <li class="nav-item"><a class="nav-link" href="/logout">Cerrar Sesión</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
+    <div th:if="${msgExito != null}" class="alert alert-success alert-dismissible">
+        [[${msgExito}]]
+        <button type="button" class="btn btn-close" data-bs-dismiss="alert"></button>
+    </div>
     <!---BODDY--->
     <div class="container-fluid">
         <div class="d-flex" style="height: 20px;">

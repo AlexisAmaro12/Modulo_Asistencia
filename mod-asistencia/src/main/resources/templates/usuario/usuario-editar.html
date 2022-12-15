@@ -44,6 +44,11 @@
                         <label for="password">Contraseña : </label>
                         <input id="password" type="password" placeholder="Digite la contraseña" th:field="*{password}"  class="form-control">
                     </div>
+                    <div class= "mb-3">
+                        <label for="verPassword">Verificar Contraseña : </label>
+                        <input id="verPassword" name="verPassword" type="password"  placeholder="Verifique la contraseña"  class="form-control" required>
+                        <div th:if="${msgError != null}" style="color:red;">[[${msgError}]]</div>
+                    </div>
                     <div sec:authorize="hasRole('ROLE_ADMIN')" class= "mb-3">
                         <label >Estado del Usuario : </label>
                         <select th:field="*{estado}" class="form-select form-select-sm" aria-label=".form-select-sm example">

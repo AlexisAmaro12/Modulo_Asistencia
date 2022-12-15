@@ -61,7 +61,7 @@ public class UsuarioControlador {
     public String mostrarOpciones(HttpServletRequest request, Model modelo) {
         //Obtenemos el expediente del usuario que inicio sesion
         Integer expediente = Integer.parseInt(SecurityContextHolder.getContext().getAuthentication().getName());
-        String estadoUsuario = usuarioServicio.findOne(expediente).getEstado();
+        String estadoUsuario = usuarioServicio.findOne(expediente).getEstado(); //Obtenemos el estado del usuario que inicio sesion
         if(estadoUsuario.equals("Inactivo")) {
             modelo.addAttribute("mensaje", "Se encuentra inactivo");
             new SecurityContextLogoutHandler().logout(request, null, null);
@@ -117,6 +117,34 @@ public class UsuarioControlador {
         return "usuario/usuario-lista"; //Dirige al HTML de usuario
     }
 
+    //Peticion para iniciar sesion
+    @GetMapping("/cambiar-password")
+    public String mostrarFormularioPassword(Model model) {
+        return "usuario/usuario-password"; //Dirige al HTML login
+    }
+    //Peticion para iniciar sesion
+    @PostMapping("/cambiar-password")
+    public String cambiarPassword(Model model, @RequestParam String password, @RequestParam String nuevoPassword, @RequestParam String verPassword, RedirectAttributes redirect) {
+        //Obtenemos el expediente del usuario que inicio sesion
+        Integer expediente = Integer.parseInt(SecurityContextHolder.getContext().getAuthentication().getName());
+        String passwordUsuario = usuarioServicio.getPass(expediente);//Se obtiene el password del usuario por su expediente
+        if (!bCryptPasswordEncoder.matches(password, passwordUsuario)) {
+            //Se envia un mensaje de error a la vista
+            model.addAttribute("msgError", "Contraseña incorrecta");
+            return "usuario/usuario-password"; //Se dirige al HTML registro_formulario
+        }
+        if(!nuevoPassword.equals(verPassword)) {
+            model.addAttribute("msgError", "La contraseña nueva no coincide");
+            return "usuario/usuario-password"; //Dirige al HTML usuario_nuevo_formulario
+        }
+        Usuario usuario = usuarioServicio.findOne(expediente);
+        String passwordEncode = bCryptPasswordEncoder.encode(nuevoPassword); //Encripta el password
+        usuario.setPassword(passwordEncode); //Asigna el password encriptado al usuario
+        usuarioServicio.save(usuario); //guarda al nuevo usuario
+        redirect.addFlashAttribute("msgExito", "La contraseña se actualizo con exito");
+        return "redirect:/administrar"; //Dirige al HTML login
+    }
+
     //Peticion para mostrar el formulario para un usuario nuevo
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/usuarios/nuevo")
@@ -131,7 +159,7 @@ public class UsuarioControlador {
     //Peticion POST para guardar un usuario
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/usuarios/nuevo")
-    public String guardarUsuario(@Validated Usuario usuario, BindingResult bindingResult, RedirectAttributes redirect, Model modelo) {
+    public String guardarUsuario(@RequestParam(value = "verPassword", defaultValue = "") String verPassword, @Validated Usuario usuario, BindingResult bindingResult, RedirectAttributes redirect, Model modelo) {
         //Verifica que no existan errores en el formulario
         if (bindingResult.hasErrors()) {
             modelo.addAttribute("usuario", usuario);
@@ -148,6 +176,14 @@ public class UsuarioControlador {
             List<Rol> roles = rolRepositorio.findAll();
             modelo.addAttribute("roles", roles);
             modelo.addAttribute("msgFallo", "El usuario ya existe");
+            return "usuario/usuario-nuevo"; //Dirige al HTML usuario_nuevo_formulario
+        }
+        if(!usuario.getPassword().equals(verPassword)) {
+            //Manda mensaje de fallo a la vista
+            modelo.addAttribute("usuario", usuario);
+            List<Rol> roles = rolRepositorio.findAll();
+            modelo.addAttribute("roles", roles);
+            modelo.addAttribute("msgError", "El password no coincide");
             return "usuario/usuario-nuevo"; //Dirige al HTML usuario_nuevo_formulario
         }
         //Obtiene el password ingresado
@@ -174,7 +210,7 @@ public class UsuarioControlador {
     //Peticion POST para actualizar un usuario
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR')")
     @PostMapping("/usuarios/editar/{expediente}")
-    public String actualizarUsuario(@PathVariable Integer expediente, @Validated Usuario usuario, BindingResult bindingResult, RedirectAttributes redirect, Model modelo) {
+    public String actualizarUsuario(@RequestParam(value = "verPassword", defaultValue = "") String verPassword,@PathVariable Integer expediente, @Validated Usuario usuario, BindingResult bindingResult, RedirectAttributes redirect, Model modelo) {
         //Verifica que no existan errores en el formulario
         if (bindingResult.hasErrors()) {
             modelo.addAttribute("usuario", usuario);
@@ -197,6 +233,14 @@ public class UsuarioControlador {
         }
         //Comprueba que el password haya sido modificado
         if (!usuario.getPassword().equals("")) {
+            if(!usuario.getPassword().equals(verPassword)) {
+                //Manda mensaje de fallo a la vista
+                modelo.addAttribute("usuario", usuario);
+                List<Rol> roles = rolRepositorio.findAll();
+                modelo.addAttribute("roles", roles);
+                modelo.addAttribute("msgError", "El password no coincide");
+                return "usuario/usuario-editar"; //Dirige al HTML usuario_nuevo_formulario
+            }
             String pass = usuario.getPassword(); //Obtiene el password ingresado
             String passwordEncode = bCryptPasswordEncoder.encode(pass); //Encripta el password
             usuarioDB.setPassword(passwordEncode); //Asigna el password al usuario
